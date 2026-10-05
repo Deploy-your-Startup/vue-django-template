@@ -31,6 +31,7 @@ export default defineConfig({
         },
         {
           command: "./scripts/start-auth-stack.sh",
+          gracefulShutdown: { signal: "SIGTERM", timeout: 10000 },
           url: `http://localhost:${proxyPort}/ping`,
           timeout: 180000,
           env: {
