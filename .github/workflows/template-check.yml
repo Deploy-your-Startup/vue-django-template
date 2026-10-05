@@ -44,6 +44,9 @@ jobs:
       - name: Check generated frontend
         working-directory: ../generated/frontend
         run: npm ci && ./make.sh lint && ./make.sh test && ./make.sh build
+      - name: Check API client matches the backend schema
+        working-directory: ../generated/backend
+        run: ./make.sh generate_client --check
       - name: Install browser test dependencies
         working-directory: ../generated/e2e_tests
         run: npm ci && npx playwright install --with-deps chromium

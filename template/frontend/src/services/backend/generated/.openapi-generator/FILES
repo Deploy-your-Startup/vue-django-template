@@ -1,0 +1,13 @@
+.openapi-generator-ignore
+apis/StartupApi.ts
+apis/index.ts
+index.ts
+models/EntryRequest.ts
+models/EntryResponse.ts
+models/HTTPValidationError.ts
+models/HealthResponse.ts
+models/LocationInner.ts
+models/SessionResponse.ts
+models/ValidationError.ts
+models/index.ts
+runtime.ts

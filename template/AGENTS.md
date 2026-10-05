@@ -8,12 +8,22 @@ runtime selected by `.python-version` and global uv; Node is selected by mise.
 mise run backend:dev
 mise run backend:lint
 mise run backend:test
+mise run backend:generate-client
 mise run e2e:test
 ```
 
 Each service owns its `make.sh` contract: `format` changes files, `lint` only
 checks them. Run the versions pinned in pyproject.toml through uv run. CI must
 only lint, never format. Do not add pre-commit hooks.
+
+After API changes run `mise run backend:generate-client`. The pinned OpenAPI
+Generator exports the schema without a running server or database and produces
+the TypeScript client used by the frontend. CI checks it with `--check`; never
+hand-edit generated files. API docs are at `/docs` on the frontend origin.
+
+Vue Router uses the shared QueryClient and `useAuth` for guarded routes. API
+calls use the generated service with `credentials: include`; tokens stay with
+OAuth2 Proxy. `/dashboard` demonstrates a protected write and query invalidation.
 
 Tests create entities through factories, use GIVEN / WHEN / THEN and start with
 an empty database. Keep business logic in services and routes/views thin.
@@ -43,3 +53,7 @@ Authentication: `mise run dev` starts a mock OIDC provider and the real
 OAuth2 Proxy. Production login is configured with `startup bootstrap
 --auth0-tenant <tenant>` or `startup auth0 setup`. Credentials stay in Vault.
 `/private_api` must only be exposed through the proxy; it validates tokens.
+Before bootstrap: `startup auth0 check --tenant <tenant>`.
+After deploy: `startup auth0 validate --tenant <tenant> --base-domain <domain>`.
+Complete the real login in the browser; the check verifies the private API and
+secure HttpOnly session without saving auth state. Never use agent-supplied passwords.
