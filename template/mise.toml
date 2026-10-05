@@ -49,6 +49,7 @@ dir = "e2e_tests"
 run = "./make.sh test_e2e"
 
 [tasks.dev]
+depends = ["auth:up"]
 run = "mise run backend:dev ::: frontend:dev"
 
 [tasks."frontend:dev"]
@@ -62,3 +63,11 @@ run = "./make.sh lint"
 [tasks."frontend:test"]
 dir = "frontend"
 run = "./make.sh test"
+
+[tasks."auth:up"]
+dir = "oauth2-proxy"
+run = "./make.sh auth_up"
+
+[tasks."auth:down"]
+dir = "oauth2-proxy"
+run = "./make.sh auth_down"

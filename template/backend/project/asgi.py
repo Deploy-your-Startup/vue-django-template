@@ -8,7 +8,7 @@ apps.populate(settings.INSTALLED_APPS)
 
 import uvicorn  # noqa: E402
 from django.core.asgi import get_asgi_application  # noqa: E402
-from fastapi import FastAPI  # noqa: E402
+from fastapi import FastAPI, Header, HTTPException  # noqa: E402
 from starlette.middleware.cors import CORSMiddleware  # noqa: E402
 from starlette.staticfiles import StaticFiles  # noqa: E402
 
@@ -25,6 +25,14 @@ def get_application() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(router, prefix="/api")
+
+    @app.get("/private_api/session")
+    async def private_session(authorization: str | None = Header(default=None)):
+        # Signature, issuer and audience are verified by oauth2-proxy.
+        # Production ingress must never expose this prefix directly.
+        if not authorization:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"authenticated": True}
 
     if not settings.DEBUG:
         app.mount(

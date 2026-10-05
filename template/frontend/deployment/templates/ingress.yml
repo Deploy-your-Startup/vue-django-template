@@ -13,6 +13,20 @@ spec:
     - host: "{{ base_domain }}"
       http:
         paths:
+{% if oauth_enabled | default(false) | bool %}
+          - path: /oauth2
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port: { number: 4180 }
+          - path: /private_api
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port: { number: 4180 }
+{% endif %}
           - path: /
             pathType: Prefix
             backend:
