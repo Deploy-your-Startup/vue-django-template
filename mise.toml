@@ -1,0 +1,5 @@
+[tools]
+node = "24"
+
+[tasks."template:check"]
+run = "./make.sh lint"

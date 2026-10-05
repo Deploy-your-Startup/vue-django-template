@@ -1,0 +1,59 @@
+[project]
+name = "backend"
+version = "0.0.1"
+description = ""
+requires-python = "~=3.14.0"
+dependencies = [
+    "dj-database-url>=3.1.2,<4",
+    "sentry-sdk>=2.71.0,<3",
+    "websockets~=17.1",
+    "redis>=8.1.0,<9",
+    "async-timeout>=5.0.1,<6",
+    "uvicorn[standard]>=0.54.0,<0.55",
+    "fastapi>=0.142.2,<0.143",
+    "pillow>=12.3.0,<13",
+    "django>=6.1.1",
+    "django-bootstrap5>=26.3",
+    "psycopg[binary]>=3.3.6",
+]
+
+[dependency-groups]
+dev = [
+    # Pinned to a minor series: ruff's *default* rule set grows with releases,
+    # and `./make.sh lint` gates CI, so an unpinned bump could flood a project
+    # with errors nobody introduced. Bump deliberately, then `./make.sh format`.
+    "ruff>=0.16.10,<0.17",
+    # Exact pin, not a range: ty is 0.0.x and explicitly has no stable API —
+    # diagnostics can change between any two releases. Since it blocks the
+    # lint gate, an unpinned bump would turn every pipeline red at once.
+    "ty==0.0.84",
+    # Teaches every type checker what Django generates at runtime (`objects`,
+    # field types). Without it ty reports `Model has no attribute "objects"`
+    # on every query. Reverse relations from `related_name` still need explicit
+    # RelatedManager annotations under TYPE_CHECKING.
+    "django-stubs>=6.1.1",
+    "httpx>=0.28.1,<0.29",
+    "pytest>=9.1.1,<10",
+    "pytest-django>=4.14.0,<5",
+    "pytest-asyncio>=1.4.0,<2",
+    "factory-boy>=3.3.3,<4",
+]
+
+[tool.uv]
+package = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "project.settings"
+python_files = ["tests.py", "test_*.py", "*_test.py"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+extend-select = ["I", "E", "F", "B", "UP"]
+ignore = ["E501"]

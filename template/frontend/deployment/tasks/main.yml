@@ -1,0 +1,16 @@
+---
+- name: Apply frontend service
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'service.yml') }}"
+  tags: frontend
+- name: Apply frontend ingress
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'ingress.yml') }}"
+  tags: frontend
+- name: Apply frontend deployment
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'deployment.yml') }}"
+  tags: frontend
