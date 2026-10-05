@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - deployment/**
+      - backend/deployment/**
+      - frontend/deployment/**
+      - oauth2-proxy/deployment/**
   workflow_dispatch:
     inputs:
       environment:
