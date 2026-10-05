@@ -1,7 +1,7 @@
 name: Deployed full-stack E2E
 on:
   workflow_run:
-    workflows: ['Build and Deploy Backend', 'Build and Deploy Frontend']
+    workflows: ['Build and Deploy Backend', 'Build and Deploy Frontend', 'Deploy']
     types: [completed]
     branches: [main]
   workflow_dispatch:

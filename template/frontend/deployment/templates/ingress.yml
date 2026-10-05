@@ -19,13 +19,13 @@ spec:
             backend:
               service:
                 name: oauth2-proxy
-                port: { number: 4180 }
+                port: { number: 80 }
           - path: /private_api
             pathType: Prefix
             backend:
               service:
                 name: oauth2-proxy
-                port: { number: 4180 }
+                port: { number: 80 }
 {% endif %}
           - path: /
             pathType: Prefix

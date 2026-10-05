@@ -8,11 +8,13 @@ on:
   pull_request:
     paths:
       - 'backend/**'
+      - '!backend/deployment/**'
   push:
     branches:
       - main
     paths:
       - 'backend/**'
+      - '!backend/deployment/**'
   workflow_dispatch:
     inputs:
       environment:
