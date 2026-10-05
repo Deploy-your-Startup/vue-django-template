@@ -1,11 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
-import { basename, resolve } from "node:path";
-const backendPort = Number(process.env.E2E_APP_PORT || 8001);
-const frontendPort = Number(process.env.E2E_FRONTEND_PORT || 8081);
-const proxyPort = Number(process.env.E2E_AUTH_PROXY_PORT || 4188);
-const oidcPort = Number(process.env.E2E_OIDC_PORT || 8098);
-const databaseName =
-  process.env.E2E_DB_NAME || `${basename(resolve(".."))}_e2e`;
+import {
+  backendPort,
+  frontendPort,
+  proxyPort,
+  oidcPort,
+  databaseName,
+} from "./support/config";
 export default defineConfig({
   testDir: "./tests",
   workers: 1,
@@ -14,6 +14,8 @@ export default defineConfig({
   use: {
     baseURL: process.env.E2E_BASE_URL || `http://localhost:${frontendPort}`,
     trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: process.env.E2E_BASE_URL

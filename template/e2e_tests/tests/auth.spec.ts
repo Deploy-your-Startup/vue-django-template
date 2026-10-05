@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../support/fixtures";
 
 test("protected routes reject anonymous and forged credentials", async ({
   request,

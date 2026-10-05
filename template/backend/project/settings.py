@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     "django_bootstrap5",
     "api",
 ]
+if DEBUG:
+    INSTALLED_APPS.append("e2e_support")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
