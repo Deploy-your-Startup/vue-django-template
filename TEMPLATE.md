@@ -10,3 +10,10 @@ No write API depends on a missing proxy. All /api traffic is same-origin.
 
 CI renders a new app and runs backend/frontend lint, tests and browser E2E.
 The template contains only public questions. Existing group_vars are protected.
+
+Shared About Phil workflow: pinned OpenAPI → TypeScript client, cookie-enabled
+API services, TanStack Query and mutations, shared auth cache/router guards,
+project/CV routes, protected dashboard writes, and per-test factory DB isolation.
+Run `mise run backend:generate-client` after API changes; CI detects client drift.
+The public/private split and `/docs` share the frontend origin. The sample Entry
+model demonstrates the complete flow without copying personal integrations.

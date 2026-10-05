@@ -29,5 +29,6 @@ jobs:
         with:
           node-version: '24'
       - run: cd frontend && npm ci
+      - run: cd backend && ./make.sh generate_client --check
       - run: cd e2e_tests && npm ci && npx playwright install --with-deps chromium
       - run: cd e2e_tests && ./make.sh lint && ./make.sh test_e2e
