@@ -1,10 +1,7 @@
 import { useQuery } from "@tanstack/vue-query";
+import services from "../services";
 
-export async function fetchHealth(): Promise<{ status: string }> {
-  const response = await fetch("/api/health");
-  if (!response.ok) throw new Error("Backend unavailable");
-  return response.json();
-}
+export const fetchHealth = () => services.backend.getHealth();
 
 export function useHealth() {
   return useQuery({ queryKey: ["health"], queryFn: fetchHealth });

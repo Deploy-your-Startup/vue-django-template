@@ -10,6 +10,8 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': process.env.BACKEND_SERVICE_URL || 'http://127.0.0.1:8000',
+      '/docs': process.env.BACKEND_SERVICE_URL || 'http://127.0.0.1:8000',
+      '/openapi.json': process.env.BACKEND_SERVICE_URL || 'http://127.0.0.1:8000',
       '/oauth2': process.env.OAUTH2_PROXY_URL || 'http://localhost:4180',
       '/private_api': process.env.OAUTH2_PROXY_URL || 'http://localhost:4180',
     },

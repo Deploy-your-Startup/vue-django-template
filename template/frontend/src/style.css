@@ -1,9 +1,9 @@
 @import url("bootstrap/dist/css/bootstrap.min.css");
 :root {
   color-scheme: dark;
-  --accent: #b8f378;
-  --surface: #171c18;
-  --muted: #a3ada6;
+  --accent: #c04dee;
+  --surface: #17121e;
+  --muted: #aab0d4;
 }
 * {
   box-sizing: border-box;
@@ -13,7 +13,7 @@ html {
 }
 body {
   margin: 0;
-  background: #0c110e;
+  background: #08080f;
   color: #ecf2ed;
   font-family: system-ui, sans-serif;
 }
@@ -71,16 +71,16 @@ h1 {
   gap: 36px;
   padding: 15px 23px;
   background: var(--accent);
-  color: #102008;
+  color: #ffffff;
   border-radius: 6px;
 }
 .button:hover {
-  color: #102008;
-  background: #d5ffad;
+  color: #ffffff;
+  background: #9333ea;
 }
 .section {
   padding: 70px 0;
-  border-top: 1px solid #29322c;
+  border-top: 1px solid #35273e;
 }
 .section h2 {
   font-size: 38px;
@@ -98,7 +98,7 @@ h1 {
 }
 article {
   background: var(--surface);
-  border: 1px solid #303a32;
+  border: 1px solid #35273e;
   padding: 32px;
   border-radius: 12px;
 }
@@ -116,7 +116,7 @@ article p {
   margin: 24px 0 0;
 }
 .tags li {
-  border: 1px solid #39453b;
+  border: 1px solid #594268;
   border-radius: 30px;
   padding: 4px 12px;
   font-size: 12px;
@@ -141,4 +141,29 @@ footer {
   footer {
     display: block;
   }
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 32px 0;
+}
+input {
+  border: 1px solid #594268;
+  border-radius: 6px;
+  background: var(--surface);
+  color: inherit;
+  padding: 12px;
+}
+nav {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+nav button {
+  background: transparent;
+  border: 1px solid #594268;
+  color: inherit;
+  border-radius: 6px;
 }

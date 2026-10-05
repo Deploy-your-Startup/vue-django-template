@@ -10,6 +10,10 @@ run = "./make.sh lint"
 dir = "backend"
 run = "./make.sh test"
 
+[tasks."backend:generate-client"]
+dir = "backend"
+run = "./make.sh generate_client"
+
 [tasks."deployment:setup"]
 dir = "deployment"
 run = "./make.sh setup"

@@ -5,6 +5,37 @@
 # passing `ty check` and the CI gate would go green on a lint error.
 set -e
 
+if [ "${1:-}" == "generate_client" ]; then
+    script_dir="$(cd "$(dirname "$0")" && pwd)"
+    prettier="$script_dir/../frontend/node_modules/.bin/prettier"
+    if [ ! -x "$prettier" ]; then
+        echo "Run npm ci in frontend/ before generating the client." >&2
+        exit 1
+    fi
+    schema_file="$(mktemp "$script_dir/.openapi-schema.XXXXXX")"
+    client_tmp="$(mktemp -d "$script_dir/../frontend/.generated-client.XXXXXX")"
+    trap 'rm -f "$schema_file"; rm -rf "$client_tmp"' EXIT
+    (
+        cd "$script_dir"
+        DATABASE_URL=sqlite:///:memory: uv run python -c 'import json, sys; from pathlib import Path; from project.asgi import app; Path(sys.argv[1]).write_text(json.dumps(app.openapi()))' "$schema_file"
+    )
+    docker run --rm -v "$script_dir/..":/local \
+        openapitools/openapi-generator-cli:v7.24.0 generate \
+        -i "/local/backend/${schema_file##*/}" -g typescript-fetch \
+        --global-property apiDocs=false,modelDocs=false,apiTests=false,modelTests=false \
+        -o "/local/frontend/${client_tmp##*/}"
+    "$prettier" --write "$client_tmp"
+    generated="$script_dir/../frontend/src/services/backend/generated"
+    if [ "${2:-}" == "--check" ]; then
+        diff -ru "$generated" "$client_tmp"
+    else
+        mkdir -p "$(dirname "$generated")"
+        rm -rf "$generated"
+        mv "$client_tmp" "$generated"
+    fi
+    exit 0
+fi
+
 if [ "${1:-}" == "setup_local" ]; then
     echo "Install project dependencies from the lock file"
     uv sync --locked
@@ -37,6 +68,10 @@ if [ "${1:-}" == "run_dev" ]; then
         esac
     done
     cd "$(cd "$(dirname "$0")" && pwd)"
+    if [ "$flush" == "true" ] && [ -n "${PRODUCTION:-}" ]; then
+        echo "Refusing to flush production data." >&2
+        exit 1
+    fi
     uv run python manage.py migrate --noinput --settings project.settings
     if [ "$flush" == "true" ]; then
         uv run python manage.py flush --noinput --settings project.settings

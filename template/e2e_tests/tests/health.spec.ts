@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../support/fixtures";
 test("the portfolio connects to the real backend", async ({ page }) => {
   // GIVEN: the isolated full stack is started by Playwright.
   // WHEN

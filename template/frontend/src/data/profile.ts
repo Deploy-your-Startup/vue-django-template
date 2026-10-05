@@ -5,9 +5,16 @@ export const profile = {
   github: "https://github.com/§§deploy_your_startup.github_username§§",
   projects: [
     {
+      slug: "your-next-project",
       title: "Your next project",
       description: "Describe what you are building and who it helps.",
       tags: ["Vue", "Django", "FastAPI"],
+    },
+  ],
+  experience: [
+    {
+      title: "Your experience",
+      description: "Add your work, education and milestones here.",
     },
   ],
 };
