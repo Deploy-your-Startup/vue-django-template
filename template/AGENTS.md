@@ -43,3 +43,7 @@ Authentication: `mise run dev` starts a mock OIDC provider and the real
 OAuth2 Proxy. Production login is configured with `startup bootstrap
 --auth0-tenant <tenant>` or `startup auth0 setup`. Credentials stay in Vault.
 `/private_api` must only be exposed through the proxy; it validates tokens.
+Before bootstrap: `startup auth0 check --tenant <tenant>`.
+After deploy: `startup auth0 validate --tenant <tenant> --base-domain <domain>`.
+Complete the real login in the browser; the check verifies the private API and
+secure HttpOnly session without saving auth state. Never use agent-supplied passwords.
