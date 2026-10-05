@@ -161,3 +161,16 @@
       include_role:
         name: frontend
       tags: frontend
+
+    - name: copy oauth2-proxy role into deployment
+      connection: local
+      copy:
+        src: ../oauth2-proxy/deployment/
+        dest: ./roles/oauth2-proxy
+      tags: oauth2-proxy
+
+    - name: deploy oauth2-proxy
+      include_role:
+        name: oauth2-proxy
+      when: oauth_enabled | default(false) | bool
+      tags: oauth2-proxy

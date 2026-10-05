@@ -18,5 +18,110 @@ services:
       interval: 1s
       timeout: 5s
       retries: 60
+  oidc:
+    image: ghcr.io/navikt/mock-oauth2-server:2.1.10
+    profiles: [auth]
+    environment:
+      # Auth0 issues an audience and an email claim; the mock does not unless
+      # told to, and oauth2-proxy needs both. The client id has to stay in the
+      # audience list because the same mapping applies to the id_token, and an
+      # id_token whose audience is not the client is rejected.
+      #
+      # Two mappings, because a request is matched on a parameter it actually
+      # carries and the two grants carry different ones. The browser's token
+      # request has `grant_type=authorization_code` and no `scope` at all -
+      # scope goes on the *authorize* request, not this one - so a mapping on
+      # scope never fires for a login, the id_token comes back without an email,
+      # and oauth2-proxy answers the callback with
+      # "neither the id_token nor the profileURL set an email" and a 500.
+      JSON_CONFIG: >-
+        {
+          "interactiveLogin": true,
+          "tokenCallbacks": [
+            {
+              "issuerId": "default",
+              "requestMappings": [
+                {
+                  "requestParam": "grant_type",
+                  "match": "authorization_code",
+                  "claims": {
+                    "email": "user@example.com",
+                    "aud": ["startup-web", "startup-api"]
+                  }
+                },
+                {
+                  "requestParam": "scope",
+                  "match": "*",
+                  "claims": {
+                    "email": "user@example.com",
+                    "aud": ["startup-web", "startup-api"]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+    ports:
+      - "127.0.0.1:${OIDC_PORT:-8090}:8080"
+
+  mock-oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.13.0
+    profiles: [auth]
+    depends_on: [oidc]
+    # 4180 for development; e2e_tests runs a second copy of this stack on 4182
+    # (support/config.ts) so the two can be up at once.
+    ports:
+      - "127.0.0.1:${MOCK_PROXY_PORT:-4180}:4180"
+    extra_hosts:
+      # The backend runs on the host, not in compose, so it can keep its
+      # hot-reload and its debugger.
+      - "host.docker.internal:host-gateway"
+    command:
+      - --provider=oidc
+      # The provider is reachable under two names - `oidc` in here, localhost
+      # from the browser - and it derives the issuer it puts in tokens from the
+      # Host header it is called with. So discovery is skipped and each endpoint
+      # is pointed at the name whoever calls it can actually resolve, with the
+      # issuer pinned to the one the token exchange will produce.
+      - --skip-oidc-discovery=true
+      - --oidc-issuer-url=http://oidc:8080/default
+      - --redeem-url=http://oidc:8080/default/token
+      - --oidc-jwks-url=http://oidc:8080/default/jwks
+      - --login-url=http://localhost:${OIDC_PORT:-8090}/default/authorize
+      - --client-id=startup-web
+      - --client-secret=local-development-only
+      # 32 bytes of nothing, for a stack that only ever listens on localhost.
+      - --cookie-secret=YWJvdXQtcGhpbC1sb2NhbC1kZXYtY29va2llLWtleSE=
+      - --cookie-secure=false
+      # No --cookie-domain, unlike production: the cookie then belongs to the
+      # host it was set on, and browsers ignore the port. So a session started
+      # on the frontend's port reaches the proxy's port too - locally what
+      # `.aboutphil.de` does across the apex and the backend subdomain.
+      - --email-domain=*
+      - --http-address=0.0.0.0:4180
+      # Where the *browser* is: the frontend dev server, which routes /oauth2
+      # here just as the production ingress routes it to this service. The
+      # whitelist has to match, because oauth2-proxy refuses an `rd=` outside it
+      # and falls back to `/` silently.
+      - --redirect-url=${PROXY_PUBLIC_ORIGIN:-http://localhost:8080}/oauth2/callback
+      - --whitelist-domain=${PROXY_WHITELIST_DOMAIN:-localhost:8080}
+      - --upstream=http://host.docker.internal:${BACKEND_PORT:-8000}
+      - --reverse-proxy=true
+      # The iOS app's path: a bearer token signed by the issuer is verified and
+      # passed through instead of being answered with a login redirect.
+      - --skip-jwt-bearer-tokens=true
+      - --extra-jwt-issuers=http://oidc:8080/default=startup-api
+      # A cookie-authenticated browser sends no Authorization header, but the
+      # backend's Depends(openid) requires one.
+      - --pass-authorization-header=true
+      # Everything except the write endpoints stays reachable anonymously.
+      - "--skip-auth-route=!=^/private_api"
+      # A CORS preflight carries no credentials, so a protected route answers it
+      # with 403 and the browser drops the real request before sending it.
+      # Production's `oauth2_proxy_extra_skip_auth_routes`, here for the same
+      # reason: without it every cross-origin write from the frontend fails.
+      - "--skip-auth-route=OPTIONS=^/private_api"
+
+
 volumes:
   db-data:

@@ -38,3 +38,8 @@ including `.copier-answers.yml`. A separate branch is optional; Copier does
 not commit, push or deploy. Use a tag/commit instead of `main` for a fixed target.
 Do not edit Copier answers manually. Existing deployment/group_vars files are
 preserved. `startup sync` handles shared deployment roles/workflows separately.
+
+Authentication: `mise run dev` starts a mock OIDC provider and the real
+OAuth2 Proxy. Production login is configured with `startup bootstrap
+--auth0-tenant <tenant>` or `startup auth0 setup`. Credentials stay in Vault.
+`/private_api` must only be exposed through the proxy; it validates tokens.

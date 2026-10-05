@@ -44,3 +44,8 @@ backend_sentry_auth_token: !vault |
   3065
 postgres_host: postgres
 postgres_port: 5432
+
+# Configure these through startup secrets before enabling production login.
+oauth_enabled: false
+auth_domain: "https://your-tenant.eu.auth0.com"
+auth_audience: "https://§§deploy_your_startup.base_domain§§/private_api"

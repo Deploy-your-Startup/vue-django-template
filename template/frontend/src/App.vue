@@ -1,7 +1,14 @@
 <script setup lang="ts">
+import { useQuery } from "@tanstack/vue-query";
+import { login, logout, whoAmI } from "./auth";
 import { profile } from "./data/profile";
 import { useHealth } from "./composables/useHealth";
 const { data, isError } = useHealth();
+const { data: identity } = useQuery({
+  queryKey: ["identity"],
+  queryFn: whoAmI,
+  retry: false,
+});
 </script>
 
 <template>
@@ -10,6 +17,8 @@ const { data, isError } = useHealth();
     <nav aria-label="Main">
       <a href="#about">About</a><a href="#projects">Projects</a
       ><a :href="profile.github" rel="noopener">GitHub ↗</a>
+      <button v-if="identity" @click="logout">Log out</button>
+      <button v-else @click="login()">Log in</button>
     </nav>
   </header>
   <main class="shell">
