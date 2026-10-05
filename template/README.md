@@ -18,3 +18,9 @@ Hetzner, k3s and shared Ansible roles through startup CLI.
 Keep .copier-answers.yml committed; use startup template update --dry-run before
 updates. Deployment variables and Vault files are preserved.
 Product vision: https://deploy-your-startup.com
+
+For a deployed-site smoke test (no local servers or database flush):
+
+```bash
+E2E_BASE_URL=https://§§deploy_your_startup.base_domain§§ mise run e2e:test
+```
