@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: "{{ k8s_namespace | default('default') }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: frontend }
+  template:
+    metadata:
+      labels:
+        app: frontend
+        triggerUpdateLabel: "{{ ansible_date_time.iso8601_basic }}"
+    spec:
+      containers:
+        - name: frontend
+          image: "{{ docker_registry_host }}/{{ project_name }}-frontend:{{ frontend_version }}"
+          ports: [{ containerPort: 80 }]
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet: { path: /, port: 80 }
+          resources:
+            requests: { memory: 32Mi }
+      imagePullSecrets: [{ name: github-container-registry }]

@@ -1,0 +1,9 @@
+.idea/
+.DS_Store
+**/.venv/
+**/__pycache__/
+**/.ruff_cache/
+**/.pytest_cache/
+**/node_modules/
+**/test-results/
+**/playwright-report/
