@@ -6,5 +6,5 @@ case "${1:-}" in
     test_e2e) shift; npm test -- "$@" ;;
     format) npm run format ;;
     lint) npm run format:check ;;
-    *) echo 'Usage: ./make.sh {setup_local|test_e2e|format|lint}' >&2; exit 2 ;;
+    *) if [ -x ./make.project.sh ]; then exec ./make.project.sh "$@"; fi; echo 'Usage: ./make.sh {setup_local|test_e2e|format|lint}' >&2; exit 2 ;;
 esac
