@@ -9,5 +9,5 @@ export const databaseName = (
   `${basename(fileURLToPath(new URL("../../", import.meta.url)))}_e2e`
 ).replaceAll("-", "_");
 export const databaseUrl =
-  process.env.DATABASE_URL ||
+  process.env.E2E_DATABASE_URL ||
   `postgres://admin:admin@127.0.0.1:${process.env.E2E_POSTGRES_PORT || "55432"}/${databaseName}`;

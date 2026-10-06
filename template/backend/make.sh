@@ -19,7 +19,7 @@ if [ "${1:-}" == "generate_client" ]; then
         cd "$script_dir"
         DATABASE_URL=sqlite:///:memory: uv run python -c 'import json, sys; from pathlib import Path; from project.asgi import app; Path(sys.argv[1]).write_text(json.dumps(app.openapi()))' "$schema_file"
     )
-    docker run --rm -v "$script_dir/..":/local \
+    docker run --rm --user "$(id -u):$(id -g)" -v "$script_dir/..":/local \
         openapitools/openapi-generator-cli:v7.24.0 generate \
         -i "/local/backend/${schema_file##*/}" -g typescript-fetch \
         --global-property apiDocs=false,modelDocs=false,apiTests=false,modelTests=false \
