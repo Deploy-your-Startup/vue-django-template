@@ -11,8 +11,12 @@ services:
     ports:
       - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
     volumes:
-      # Parent directory works with both the pre-18 and PostgreSQL 18 layouts.
+      # The image's declared volume moved from /data to its parent in 18.
+§§% if postgres_version.split('.')[0] | int >= 18 %§§
       - db-data:/var/lib/postgresql
+§§% else %§§
+      - db-data:/var/lib/postgresql/data
+§§% endif %§§
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-§§deploy_your_startup.project_name§§_backend}']
       interval: 1s

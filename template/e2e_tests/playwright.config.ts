@@ -25,6 +25,8 @@ export default defineConfig({
           command: `cd ../backend && ./make.sh run_dev --port ${backendPort} --reload false --flush true`,
           url: `http://127.0.0.1:${backendPort}/api/health`,
           env: {
+            // Never inherit the development database: this server flushes it.
+            DATABASE_URL: process.env.E2E_DATABASE_URL || "",
             LOCAL_DB_NAME: databaseName.replaceAll("-", "_"),
             POSTGRES_PORT: process.env.E2E_POSTGRES_PORT || "55432",
           },
