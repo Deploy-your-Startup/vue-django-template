@@ -2,6 +2,7 @@
 set -e
 cd "$(dirname "$0")"
 case "${1:-}" in
+ help|--help) echo 'Commands: setup_local run_dev run_dev_auth run format lint test build'; exit 0 ;;
  setup_local) npm ci ;;
  run_dev) npm run dev ;;
  run_dev_auth)

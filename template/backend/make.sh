@@ -7,6 +7,9 @@ set -e
 cd "$(dirname "$0")"
 
 case "${1:-}" in
+    help|--help)
+        echo 'Commands: setup_local run run_dev migrate makemigrations dumpdata test format lint generate_client restore_local auth_up auth_down'
+        exit 0 ;;
     auth_up|auth_down) exec ../oauth2-proxy/make.sh "$@" ;;
     generate_client|setup_local|run|run_dev|migrate|makemigrations|dumpdata|test|format|lint|restore_local) ;;
     *)
