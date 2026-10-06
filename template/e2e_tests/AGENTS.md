@@ -9,3 +9,6 @@ backend factories via support/seed.ts. Write GIVEN / WHEN / THEN tests.
 E2E_BASE_URL enables read-only live smoke tests. It starts no local servers and
 never seeds or flushes data. Tests that log in to the mock or create data skip in
 that mode. For real provider login use startup auth0 validate after deployment.
+
+Local E2E ignores an inherited DATABASE_URL. To provide a disposable test
+database explicitly, set E2E_DATABASE_URL; it is flushed before tests.
