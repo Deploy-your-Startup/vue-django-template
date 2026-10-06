@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "playwright test",
+    "test": "node --test support/config.test.ts && playwright test",
     "format": "prettier --write '**/*.ts' '*.json'",
     "format:check": "prettier --check '**/*.ts' '*.json'"
   },

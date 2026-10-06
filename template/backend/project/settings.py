@@ -48,10 +48,7 @@ if not os.getenv("DATABASE_URL"):
         db_name=LOCAL_DB_NAME,
         database_url_name="DATABASE_URL",
     )
-default_database_url = os.getenv(
-    "DATABASE_URL",
-    database_url_for_local_development,
-)
+default_database_url = os.getenv("DATABASE_URL") or database_url_for_local_development
 
 INSTALLED_APPS = [
     "django.contrib.admin",

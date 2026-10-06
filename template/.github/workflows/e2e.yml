@@ -21,7 +21,7 @@ jobs:
           --health-cmd "pg_isready -U admin"
           --health-interval 5s --health-timeout 5s --health-retries 12
     env:
-      DATABASE_URL: postgres://admin:admin@127.0.0.1:5432/e2e
+      E2E_DATABASE_URL: postgres://admin:admin@127.0.0.1:5432/e2e
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
