@@ -9,6 +9,11 @@ import {
   project,
   extraWebServers,
 } from "./support/config";
+if (process.env.E2E_BASE_URL && project.allowLiveSmoke === false) {
+  throw new Error(
+    "This project's browser tests write data; live smoke mode is disabled.",
+  );
+}
 export default defineConfig({
   testDir: "./tests",
   workers: 1,

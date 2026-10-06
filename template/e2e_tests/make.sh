@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 case "${1:-}" in
+    help|--help) echo 'Commands: setup_local test_e2e format lint'; exit 0 ;;
     setup_local) npm ci; npx playwright install chromium ;;
     test_e2e) shift; npm test -- "$@" ;;
     format) npm run format ;;

@@ -4,5 +4,6 @@ import type { PlaywrightTestConfig } from "@playwright/test";
 export const project = {
   backendHealthPath: "/api/health",
   frontendThroughProxy: false,
+  allowLiveSmoke: true,
 };
 export const extraWebServers: PlaywrightTestConfig["webServer"] = [];
