@@ -27,6 +27,8 @@ _skip_if_exists:
   # These files contain project-specific infrastructure and vaulted secrets.
   # Seed new projects once; never rewrite existing files during an update.
   - deployment/group_vars/*.yml
+  - frontend/runtime-env.sh
+  - e2e_tests/support/project.config.ts
 project_name:
   type: str
   help: Repository name (kebab-case)

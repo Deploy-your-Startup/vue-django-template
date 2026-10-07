@@ -9,6 +9,6 @@ CMD ["./make.sh", "test"]
 FROM nginx:stable-alpine AS production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --chmod=755 make.sh /
+COPY --chmod=755 make.sh runtime-env.sh /
 EXPOSE 80
 CMD ["./make.sh", "run"]
