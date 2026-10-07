@@ -7,6 +7,7 @@ function databaseUrl(overrides: Record<string, string>) {
   delete env.DATABASE_URL;
   delete env.E2E_DATABASE_URL;
   delete env.E2E_POSTGRES_PORT;
+  delete env.E2E_DB_PORT;
   delete env.E2E_DB_NAME;
   return execFileSync(
     process.execPath,

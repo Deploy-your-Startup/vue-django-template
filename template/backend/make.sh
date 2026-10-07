@@ -4,6 +4,19 @@
 # code of the *last* line only, so a failing `ruff check` would be masked by a
 # passing `ty check` and the CI gate would go green on a lint error.
 set -e
+cd "$(dirname "$0")"
+
+case "${1:-}" in
+    help|--help)
+        echo 'Commands: setup_local run run_dev migrate makemigrations dumpdata test format lint generate_client restore_local auth_up auth_down'
+        exit 0 ;;
+    auth_up|auth_down) exec ../oauth2-proxy/make.sh "$@" ;;
+    generate_client|setup_local|run|run_dev|migrate|makemigrations|dumpdata|test|format|lint|restore_local) ;;
+    *)
+        if [ -x ./make.project.sh ]; then exec ./make.project.sh "$@"; fi
+        echo "Unknown backend command: ${1:-}" >&2
+        exit 2 ;;
+esac
 
 if [ "${1:-}" == "generate_client" ]; then
     script_dir="$(cd "$(dirname "$0")" && pwd)"
