@@ -15,7 +15,14 @@ with tempfile.TemporaryDirectory() as temporary:
         ".git", ".venv", "node_modules", "__pycache__", ".pytest_cache", "dist", ".ruff_cache"))
     copier.run_copy(str(source), str(generated), defaults=True, unsafe=True, quiet=True,
                     data={"project_name": "role-check", "base_domain": "example.com",
-                          "github_username": "example"})
+                          "github_username": "example", "deploy_ref": "codex/shared-cluster"})
+    workflows = list((generated / ".github/workflows").glob("*.yml"))
+    callers = [yaml.safe_load(path.read_text()) for path in workflows]
+    shared_jobs = [job for workflow in callers for job in workflow.get("jobs", {}).values()
+                   if "/deploy-your-startup/" in job.get("uses", "")]
+    assert len(shared_jobs) == 4
+    assert all(job["uses"].endswith("@codex/shared-cluster") for job in shared_jobs)
+    assert not any("§§deploy_your_startup.deploy_ref§§" in path.read_text() for path in workflows)
     playbook = yaml.safe_load((generated / "deployment/playbook.yml").read_text())
     tasks = [task for play in playbook for task in play.get("tasks", [])]
     copies = [task for task in tasks if task.get("name", "").startswith("copy ")]
@@ -29,5 +36,5 @@ with tempfile.TemporaryDirectory() as temporary:
     variables = yaml.load((generated / "deployment/group_vars/production.yml").read_text(), Loader=yaml.BaseLoader)
     assert variables["postgres_version"] == "18.6"
     dependency = (generated / "deployment/pyproject.toml").read_text()
-    assert 'rev = "c5cda4bbdaa64f65c8adab0f5fc5dd1717439b66"' in dependency
+    assert 'rev = "3b92a4c8f8b685a4371e7d1d6b8b0bbc1cd38c08"' in dependency
     print("Real Copier render: pinned CLI, current Postgres and controller copies verified")
