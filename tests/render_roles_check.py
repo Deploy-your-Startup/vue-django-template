@@ -8,6 +8,10 @@ import copier
 import yaml
 
 root = Path(sys.argv[1])
+manifest = yaml.safe_load((root / "startup-template.yml").read_text())
+assert manifest["schema"] == 1 and manifest["shared_cluster"] is True
+assert manifest["authentication"] == "auth0"
+
 with tempfile.TemporaryDirectory() as temporary:
     source = Path(temporary) / "source"
     generated = Path(temporary) / "generated"
