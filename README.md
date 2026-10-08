@@ -11,3 +11,13 @@ startup bootstrap --kind fullstack --template https://github.com/Deploy-your-Sta
 ```
 
 Source of truth for the product vision: [Deploy Your Startup](https://deploy-your-startup.com).
+
+## Shared clusters
+
+Use a compatible Startup CLI and shared deployment release to bootstrap a
+cluster owner with `--shared-cluster`, then attach additional trusted projects
+with `--cluster <descriptor>`. Each application keeps its own namespace, Vault,
+database and media volumes. The owner manages cluster-wide operations, including
+Ubuntu release upgrades. Review policies and per-startup backups before
+maintenance; local volumes do not provide storage failover. `deploy_ref` selects
+a reviewed shared deployment ref for generated workflows (default: `main`).
