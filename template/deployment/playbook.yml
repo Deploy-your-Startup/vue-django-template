@@ -182,6 +182,18 @@
       when: oauth2_proxy_enabled | default(false) | bool
       tags: oauth2-proxy
 
+    # Reject public template markers even with older shared deployment roles.
+    - name: Require generated KPI credentials before deployment
+      ansible.builtin.assert:
+        that:
+          - kpis_db_password | default('') | length >= 16
+          - kpis_app_secret | default('') | length >= 16
+          - kpis_admin_password | default('') | length >= 16
+        quiet: true
+      when: kpis_enabled | default(false) | bool
+      no_log: true
+      tags: kpis
+
     - name: Remove obsolete local kpis role cache
       delegate_to: localhost
       become: false
