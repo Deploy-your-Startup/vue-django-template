@@ -8,6 +8,10 @@ on:
 jobs:
   generated-project:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Coverage comment from the shared report action.
+      pull-requests: write
     services:
       postgres:
         image: postgres:18.6
@@ -27,6 +31,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - name: Check rendered deployment contract
         run: bash tests/render_roles_test.sh
+      - name: Test optional local coverage contract
+        run: bash tests/coverage_harness_test.sh
       - name: Test standalone agent instructions and core ADRs
         run: bash tests/agent_instructions_test.sh
       - name: Render the project
@@ -50,19 +56,42 @@ jobs:
         run: ./make.sh lint
       - name: Test generated backend
         working-directory: ../generated/backend
-        run: ./make.sh test
+        run: ./make.sh coverage
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
       - name: Check generated frontend
         working-directory: ../generated/frontend
         run: npm ci && ./make.sh lint && ./make.sh test && ./make.sh build
+      - name: Check public contracts and inferred helper returns
+        run: bash tests/typing_policy_integration_test.sh ../generated
       - name: Check API client matches the backend schema
         working-directory: ../generated/backend
         run: ./make.sh generate_client --check
       - name: Install browser test dependencies
         working-directory: ../generated/e2e_tests
         run: npm ci && npx playwright install --with-deps chromium
+      - name: Test browser coverage reporting
+        working-directory: ../generated/e2e_tests
+        run: node --test support/coverage.disabled.integration.test.ts support/coverage.integration.test.ts
       - name: Test the generated application in a browser
         working-directory: ../generated/e2e_tests
-        run: ./make.sh lint && ./make.sh test_e2e
+        run: ./make.sh lint && STARTUP_COVERAGE=true ./make.sh test_e2e
+      - name: Check the coverage harness contract
+        working-directory: ../generated
+        run: |
+          # Backend: integration tests and the measured E2E server, combined.
+          grep -q 'filename="api/routes.py"' backend/coverage/cobertura.xml
+          ls backend/coverage/integration.coverage backend/coverage/e2e.coverage.*
+          # Frontend: V8 coverage from the browser tests, mapped to src/.
+          python3 -c 'import xml.etree.ElementTree as E; print("Frontend coverage files:", [c.get("filename") for c in E.parse("frontend/coverage/cobertura.xml").iter("class")])'
+          grep -q 'filename="src/App.vue"' frontend/coverage/cobertura.xml
+          ! grep -q 'services/backend/generated' frontend/coverage/cobertura.xml
+      - name: Report coverage of the generated project
+        uses: Deploy-your-Startup/deploy-template/.github/actions/coverage-report@b66121f4df8f2c7e9f67b96075ce8d85e81ec890
+        with:
+          title: Coverage of the generated project
+          comment_key: generated-project
+          files: |
+            backend=../generated/backend/coverage/cobertura.xml
+            frontend=../generated/frontend/coverage/cobertura.xml

@@ -31,4 +31,28 @@ jobs:
       - run: cd frontend && npm ci
       - run: cd backend && ./make.sh generate_client --check
       - run: cd e2e_tests && npm ci && npx playwright install --with-deps chromium
-      - run: cd e2e_tests && ./make.sh lint && ./make.sh test_e2e
+      # Integration data first, so the backend report covers both test levels.
+      - run: cd backend && ./make.sh coverage
+        env:
+          DATABASE_URL: postgres://admin:admin@127.0.0.1:5432/e2e
+      - run: cd e2e_tests && ./make.sh lint && STARTUP_COVERAGE=true ./make.sh test_e2e
+      # Require both measured services before publishing the E2E artifact.
+      - name: Validate coverage reports
+        run: |
+          python - <<'PYTHON'
+          from pathlib import Path
+          from xml.etree import ElementTree
+          for service in ("backend", "frontend"):
+              path = Path(service) / "coverage/cobertura.xml"
+              root = ElementTree.parse(path).getroot()
+              assert root.tag == "coverage", f"{path}: expected Cobertura"
+              assert root.get("lines-valid") is not None or root.get("line-rate") is not None, f"{path}: missing line metrics"
+          PYTHON
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: coverage
+          path: |
+            backend/coverage/cobertura.xml
+            frontend/coverage/cobertura.xml
+          if-no-files-found: error
