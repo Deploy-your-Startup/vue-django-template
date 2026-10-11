@@ -27,7 +27,9 @@ measured stays inside the service; consumers read only that file.
 - **Frontend:** measured only through the browser tests. The Playwright
   fixtures collect Chromium's V8 coverage of the Vite dev server and map it back
   to `src/` with Vite's source maps (monocart-coverage-reports), writing
-  `frontend/coverage/cobertura.xml`. The generated API client is excluded.
+  `frontend/coverage/cobertura.xml`. Unvisited Vue, TypeScript and JavaScript
+  modules are transformed by the project's Vite configuration and included at
+  zero coverage. Generated API clients, declarations and test files are excluded.
 - **CI:** the shared build workflow copies `<service>/coverage/cobertura.xml`
   out of the test container when `./make.sh test` wrote it. A small
   script in the shared repository adds its line and branch rates to the job
