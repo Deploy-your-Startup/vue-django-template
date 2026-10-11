@@ -11,8 +11,9 @@ import { frontendPort } from "./config.ts";
 // Frontend coverage comes from the browser tests: Chromium's V8 coverage of the
 // Vite dev server, mapped back to src/ through Vite's source maps and written
 // as frontend/coverage/cobertura.xml for the shared pipeline
-// (docs/architecture/0007). Live smoke runs against a deployment measure nothing.
-export const measuresFrontend = !process.env.E2E_BASE_URL;
+// (docs/testing.md). Live smoke runs against a deployment measure nothing.
+export const measuresFrontend =
+  process.env.STARTUP_COVERAGE === "true" && !process.env.E2E_BASE_URL;
 
 const frontendOrigins = [
   `http://localhost:${frontendPort}`,
