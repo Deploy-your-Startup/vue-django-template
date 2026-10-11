@@ -1,7 +1,8 @@
 # Backend
 
 Django models and FastAPI routes share one ASGI application. Keep routes thin,
-business logic in services.py, and typed request/response schemas in routes.py.
+business logic in each app's services.py (ADR 0006), and typed request/response
+schemas in routes.py.
 Public reads live under /api; protected writes under /private_api. The backend
 trusts the proxy's Authorization header: never expose private routes directly.
 
@@ -18,3 +19,7 @@ Declare parameter and return types on every function and method (ADR 0002);
 Ruff enforces it, tests and e2e_support are exempt. Never mock our own code or
 patch external clients in tests: point the client at a small local stand-in
 service instead (ADR 0001).
+
+Integration and E2E tests only, never unit tests (ADR 0001). Exercise real
+persistence and collaborators; do not mock services. Keep GIVEN / WHEN / THEN
+explicit, with one business action per scenario.
