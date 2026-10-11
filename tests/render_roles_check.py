@@ -9,6 +9,7 @@ from ansible.plugins.loader import init_plugin_loader
 import tempfile
 
 import copier
+import json
 import yaml
 
 root = Path(sys.argv[1])
@@ -96,6 +97,15 @@ with tempfile.TemporaryDirectory() as temporary:
     result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play)], env=env, capture_output=True, text=True)
     assert result.returncode == 0 and "skipped=2" in result.stdout, result.stdout + result.stderr
     result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play), "-e", '{"oauth2_proxy_enabled":false,"kpis_enabled":true,"kpis_admin_password":"short"}'], env=env, capture_output=True, text=True)
+    assert result.returncode != 0 and "Apply kpis secret" not in result.stdout
+
+    # GIVEN a generated startup without an enabled OAuth2 Proxy,
+    # WHEN its owner selects OAuth KPI access, THEN the real shared role refuses
+    # the configuration before any Kubernetes apply or Vault access.
+    result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play), "-e", json.dumps({
+        "oauth2_proxy_enabled": False, "kpis_enabled": True, "kpis_access_mode": "oauth2_proxy",
+        "kpis_admin_password": "integration-admin-password", "kpis_db_password": "integration-db",
+        "kpis_app_secret": "integration-secret"})], env=env, capture_output=True, text=True)
     assert result.returncode != 0 and "Apply kpis secret" not in result.stdout
 
     # WHEN running the shipped runtime script, THEN strings stay exact and data
