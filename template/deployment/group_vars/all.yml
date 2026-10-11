@@ -51,5 +51,5 @@ auth_domain: "https://your-tenant.eu.auth0.com"
 auth_audience: "https://§§deploy_your_startup.base_domain§§/private_api"
 
 # Bootstrap generates the website UUID and all three encrypted KPI secrets.
-kpis_enabled: true
+kpis_enabled: false
 kpis_website_id: "§§deploy_your_startup.kpis_website_id§§"

@@ -70,20 +70,21 @@ with tempfile.TemporaryDirectory() as temporary:
         assert not any(task.get("ansible.builtin.copy", {}).get("dest", "").endswith(role) for task in tasks)
     variables = yaml.load((generated / "deployment/group_vars/all.yml").read_text(), Loader=yaml.BaseLoader)
     assert variables["oauth2_proxy_enabled"] == "false" and "oauth_enabled" not in variables
-    assert variables["kpis_enabled"] == "true"
+    assert variables["kpis_enabled"] == "false"
     assert variables["kpis_website_id"] == "8d92b4ec-9a6a-4c50-85e4-b6ea4048f3f8"
     for name in ("kpis_db_password", "kpis_app_secret", "kpis_admin_password"):
         production = yaml.load((generated / "deployment/group_vars/production.yml").read_text(), Loader=yaml.BaseLoader)
         assert production[name].startswith("$ANSIBLE_VAULT;")
 
-    # WHEN executing the generated guards without credentials, THEN disabled
-    # roles skip entirely; enabling KPI with a short password fails before apply.
+    # GIVEN a freshly rendered project with its default settings,
+    # WHEN executing the generated guards without credentials, THEN both roles
+    # skip entirely; enabling KPI with a short password fails before apply.
     guarded = [task for task in tasks if task.get("include_role", {}).get("name") in ("oauth2-proxy", "kpis")]
     play = Path(temporary) / "guard.yml"
-    play.write_text(yaml.safe_dump([{"hosts": "localhost", "connection": "local", "gather_facts": False, "tasks": guarded}]))
+    play.write_text(yaml.safe_dump([{"hosts": "localhost", "connection": "local", "gather_facts": False, "vars_files": [str(generated / "deployment/group_vars/all.yml")], "tasks": guarded}]))
     import os
     env = {**os.environ, "ANSIBLE_ROLES_PATH": str(roles / "roles")}
-    result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play), "-e", '{"oauth2_proxy_enabled":false,"kpis_enabled":false}'], env=env, capture_output=True, text=True)
+    result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play)], env=env, capture_output=True, text=True)
     assert result.returncode == 0 and "skipped=2" in result.stdout, result.stdout + result.stderr
     result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play), "-e", '{"oauth2_proxy_enabled":false,"kpis_enabled":true,"kpis_admin_password":"short"}'], env=env, capture_output=True, text=True)
     assert result.returncode != 0 and "Apply kpis secret" not in result.stdout
