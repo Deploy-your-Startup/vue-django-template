@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { relative } from "node:path";
+import { basename, relative } from "node:path";
 import type { Page } from "@playwright/test";
 import {
   CoverageReport,
@@ -44,11 +44,16 @@ const options: CoverageReportOptions = {
   // Report paths relative to frontend/, as in the repository: drop the
   // "localhost-8081/" origin prefix and, where Vite's source map names only the
   // file ("App.vue"), use the path the dev server served it from.
-  sourcePath: (filePath, { distFile }) =>
-    (distFile?.endsWith(`/${filePath}`) ? distFile : filePath).replace(
-      /^[^/]+-\d+\//,
-      "",
-    ),
+  sourcePath: (filePath, { distFile }) => {
+    // Vite's Vue maps can be relative to the separate E2E process (e.g.
+    // e2e_tests/App.vue). Anchor them to the module the browser actually loaded.
+    const served = distFile?.split("?")[0];
+    const path = served?.endsWith(`/${basename(filePath)}`) ? served : filePath;
+    const sourceIndex = path.lastIndexOf("/src/");
+    return sourceIndex >= 0
+      ? path.slice(sourceIndex + 1)
+      : path.replace(/^[^/]+-\d+\//, "");
+  },
   logging: "error",
 };
 
