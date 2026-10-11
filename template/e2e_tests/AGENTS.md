@@ -12,3 +12,9 @@ that mode. For real provider login use startup auth0 validate after deployment.
 
 Local E2E ignores an inherited DATABASE_URL. To provide a disposable test
 database explicitly, set E2E_DATABASE_URL; it is flushed before tests.
+
+Put each independently understandable scenario in its own focused spec file.
+Find elements by role and visible label, as the user does; add a data-testid
+only when there is no such label. Import API types from the generated client
+instead of duplicating them. Never mock: an external service the app calls gets
+a small stand-in service started next to the stack, like the mock OIDC provider.

@@ -1,8 +1,15 @@
-import { computed } from "vue";
+import { computed, type ComputedRef, type Ref } from "vue";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
-import { login, logout, whoAmI } from "../auth";
+import { login, logout, whoAmI, type Identity } from "../auth";
 
-export function useAuth() {
+export function useAuth(): {
+  identity: ComputedRef<Identity | null>;
+  isAuthenticated: ComputedRef<boolean>;
+  isLoading: Ref<boolean>;
+  login: typeof login;
+  logout: typeof logout;
+  refresh: () => Promise<void>;
+} {
   const queryClient = useQueryClient();
   const { data, isPending } = useQuery({
     queryKey: ["identity"],
