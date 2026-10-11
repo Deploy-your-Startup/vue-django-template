@@ -1,5 +1,6 @@
 import { test as base } from "@playwright/test";
 import { backendPort, frontendPort, proxyPort, oidcPort } from "./config";
+import { measureFrontend } from "./coverage";
 import { seed } from "./seed";
 
 const origins = process.env.E2E_BASE_URL
@@ -24,7 +25,7 @@ export const test = base.extend<{ cleanDatabase: void }>({
         ? route.continue()
         : route.abort();
     });
-    await use(page);
+    await measureFrontend(page, () => use(page));
   },
 });
 export { expect } from "@playwright/test";

@@ -18,3 +18,7 @@ Find elements by role and visible label, as the user does; add a data-testid
 only when there is no such label. Import API types from the generated client
 instead of duplicating them. Never mock: an external service the app calls gets
 a small stand-in service started next to the stack, like the mock OIDC provider.
+
+`test_e2e` also measures coverage (ADR 0007): support/coverage.ts records the
+frontend in Chromium, and the backend server runs under coverage.py. Keep its
+SIGTERM shutdown in playwright.config.ts; a killed server loses its data.
