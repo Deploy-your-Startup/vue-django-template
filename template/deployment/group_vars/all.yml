@@ -46,6 +46,12 @@ postgres_host: postgres
 postgres_port: 5432
 
 # Configure these through startup secrets before enabling production login.
-oauth_enabled: false
+oauth2_proxy_enabled: false
 auth_domain: "https://your-tenant.eu.auth0.com"
 auth_audience: "https://§§deploy_your_startup.base_domain§§/private_api"
+
+# Bootstrap generates the website UUID and all three encrypted KPI secrets.
+kpis_enabled: false
+# Use oauth2_proxy only after configuring and enabling the shared proxy.
+kpis_access_mode: password
+kpis_website_id: "§§deploy_your_startup.kpis_website_id§§"
