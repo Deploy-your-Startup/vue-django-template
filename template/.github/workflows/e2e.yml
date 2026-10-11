@@ -31,4 +31,18 @@ jobs:
       - run: cd frontend && npm ci
       - run: cd backend && ./make.sh generate_client --check
       - run: cd e2e_tests && npm ci && npx playwright install --with-deps chromium
+      # Integration data first, so the backend report covers both test levels.
+      - run: cd backend && ./make.sh test
+        env:
+          DATABASE_URL: postgres://admin:admin@127.0.0.1:5432/e2e
       - run: cd e2e_tests && ./make.sh lint && ./make.sh test_e2e
+      # Cobertura files from ADR 0007: the backend's combines integration and
+      # E2E data, the frontend's comes from the browser tests.
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: coverage
+          path: |
+            backend/coverage/cobertura.xml
+            frontend/coverage/cobertura.xml
+          if-no-files-found: ignore
