@@ -1,5 +1,5 @@
 # §§deploy_your_startup.project_name§§
-Vue + Django/FastAPI startup harness inspired by example-app.
+Vue + Django/FastAPI application with integration tests, browser E2E and deployment commands.
 
 ```bash
 mise run dev

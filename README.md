@@ -1,14 +1,30 @@
 # Vue + Django/FastAPI template
 
-Reusable Copier startup harness extracted from example-app and the Django backend
-template: a neutral portfolio, Vue/TypeScript/TanStack Query, Django/FastAPI,
+Build a startup on a reusable Copier foundation: a customizable portfolio,
+Vue/TypeScript/TanStack Query, Django/FastAPI,
 Postgres, integration tests, a real full-stack Playwright test and Ansible/k3s deployment.
-No personal content, private integrations or credentials are copied from example-app.
 Auth0 is optional; `mise run dev` and E2E use a mock OIDC provider and real OAuth2 Proxy.
 
+Follow the [public prerequisites](https://deploy-your-startup.com/get-started)
+first: macOS, Chrome, GitHub, Hetzner Cloud and an owned domain. Servers and
+domains are billed directly by their providers. Then install and verify the CLI:
+
 ```bash
-startup bootstrap --kind fullstack --template https://github.com/Deploy-your-Startup/vue-django-template.git --template-version main --auth0-tenant <your-tenant.eu.auth0.com>
+curl -fsSL https://deploy-your-startup.com/install.sh | bash
+gh auth login -h github.com -p https -s repo,workflow,read:packages,write:packages
+gh auth setup-git
+startup doctor
+startup bootstrap --kind fullstack --provider hetzner --domain-owned \
+  --project-name my-startup --base-domain example.com \
+  --template https://github.com/Deploy-your-Startup/vue-django-template.git \
+  --template-version v0.1.3 --without-auth
 ```
+
+Use your own project name and domain. Verify GitHub Actions, DNS, HTTPS and the
+application health before calling the first deployment complete. For an existing
+owner deployment copy, preview and sync shared deployment `v0.1.5` before enabling
+this template's required CI coverage. `startup sync` updates shared deployments;
+`startup template update` updates application files.
 
 Source of truth for the product vision: [Deploy Your Startup](https://deploy-your-startup.com).
 
