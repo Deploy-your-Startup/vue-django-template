@@ -16,6 +16,11 @@ spec:
       containers:
         - name: frontend
           image: "{{ docker_registry_host }}/{{ project_name }}-frontend:{{ frontend_version }}"
+          env:
+            - name: KPIS_SCRIPT_URL
+              value: "{{ ('https://' + (kpis_host | default('kpis.' + base_domain)) + '/script.js') if kpis_enabled | default(false) | bool else '' }}"
+            - name: KPIS_WEBSITE_ID
+              value: "{{ kpis_website_id if kpis_enabled | default(false) | bool else '' }}"
           ports: [{ containerPort: 80 }]
           imagePullPolicy: Always
           readinessProbe:

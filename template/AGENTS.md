@@ -121,3 +121,25 @@ secure HttpOnly session without saving auth state. Never use agent-supplied pass
 - Local `./make.sh test` and browser runs do not measure coverage by default. Generated backend pipelines set `require_coverage: true`; missing or invalid reports fail CI. No percentage threshold is enforced.
 - Measure integration and E2E tests, never add unit tests for coverage.
 - See [Testing](docs/testing.md) for commands and pipeline reports.
+
+## Shared authentication and KPI tracking
+
+Production uses the synced `oauth2-proxy` and `kpis` roles, without project-owned
+copies. Keep `oauth2_proxy_enabled: false` until Auth0 setup has saved the proxy
+credentials. Existing projects using `oauth_enabled` must rename that setting
+when migrating to this template; their group_vars are preserved by Copier.
+
+New bootstrap projects leave KPI tracking disabled (`kpis_enabled: false`),
+so the first deployment starts no KPI service. To enable cookieless tracking,
+set `kpis_enabled: true`, provide DNS for `kpis.<base_domain>` and deploy the
+`kpis` and `frontend` services.
+Bootstrap creates a stable public `kpis_website_id` and encrypts
+`kpis_db_password`, `kpis_app_secret` and `kpis_admin_password`. Read the admin password through `startup secrets get-field -f deployment/group_vars/production.yml --field kpis_admin_password`.
+
+Set `kpis_enabled: false` and deploy the frontend to stop tracking; this skips
+the role and preserves existing analytics data. Disabling tracking does not
+remove an already deployed KPI service or release its resources. The frontend loads one tracker
+only with both runtime values present and respects Do Not Track. Use the funnel
+`visit → cta_click → signup → activation → return`; page views supply `visit`
+automatically. Mark meaningful actions with `data-umami-event="cta_click"` and
+`data-umami-event-target`.
