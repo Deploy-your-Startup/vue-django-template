@@ -13,7 +13,8 @@ fact via useAuth, never a token in browser storage. Edit profile.ts for projects
 and CV content; dashboard shows the real protected write flow.
 
 Oxlint checks all TypeScript; ESLint runs only the Vue template rules.
-Declare return types on named functions (ADR 0002); test files are exempt.
+Declare signatures at public interfaces (ADR 0002). Internal helpers and
+callbacks may infer return types; test files are exempt.
 
 Components:
 - Keep components small and focused on one responsibility; extract a
