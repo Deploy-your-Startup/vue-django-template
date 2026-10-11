@@ -15,37 +15,30 @@ change travel through code without any single place reporting it.
 
 ## Decision
 
-Every named function and method in production code declares its parameter and
-return types. `None` / `void` / `Promise<void>` are written out, not omitted.
+Declare parameter and return types on public interfaces: API and service
+entry points, reusable exported functions and public methods. Their signatures
+explain what callers can rely on.
 
-The linters enforce it, so the rule does not depend on review:
+Private Python helpers (names starting with `_`) may infer return types.
+Internal TypeScript helpers and callbacks may use TypeScript's inference.
+Do not repeat a library's result shape just to satisfy a blanket annotation
+rule. `ReturnType<typeof function>` is appropriate when an adapter intentionally
+preserves that function's contract; use a separate type for a stable domain API.
 
-- **Python:** Ruff's `ANN` rules. `ANN401` is ignored because `Any` is
-  sometimes the honest type at a framework boundary.
-- **TypeScript and Vue:** Oxlint's `typescript/explicit-function-return-type`
-  with `allowExpressions`, `allowTypedFunctionExpressions` and
-  `allowHigherOrderFunctions`, so inline callbacks and functions assigned to an
-  already typed target are not annotated twice.
-
-Test code is exempt: its signatures carry no contract for other code. A helper
-that moves from test code into production code acquires the requirement.
-
-Derived annotations such as `ReturnType<typeof someFunction>` do not satisfy
-the intent, because they restate the inference instead of replacing it.
+Python Ruff `ANN` rules enforce public signatures; `ANN202` is disabled for
+private helper returns and `ANN401` permits honest framework-boundary `Any`.
+TypeScript's compiler checks inferred types; public interface annotations are
+reviewed rather than imposing return annotations on every local helper.
+Test code is exempt.
 
 ## Consequences
 
-- A change to a function's result is reported at that function and shows up in
-  the diff as an edited signature.
-- Readers and agents learn the contract from the signature without reading the
-  body.
-- Some signatures get verbose, for example query hooks returning
-  `UseQueryReturnType<...>`.
+- Public contract changes remain visible in signatures and diffs.
+- Small helpers retain useful inference with less annotation maintenance.
+- TypeScript public interface annotations require review.
 
 ## Alternatives considered
 
-- **Annotate only module boundaries:** half the annotations, but internal
-  helpers stay inferred, and the boundary that matters here (the generated API
-  client) is not the one such a rule checks.
-- **Convention without lint:** costs nothing to adopt and is not upheld under
-  review pressure.
+- **Explicit returns everywhere:** adds repeated library types and maintenance
+  without strengthening small internal helpers.
+- **Inference everywhere:** hides intended contracts at public interfaces.

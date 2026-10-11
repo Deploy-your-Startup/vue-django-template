@@ -17,14 +17,6 @@
     "src/services/backend/generated/**"
   ],
   "rules": {
-    "typescript/explicit-function-return-type": [
-      "error",
-      {
-        "allowExpressions": true,
-        "allowTypedFunctionExpressions": true,
-        "allowHigherOrderFunctions": true
-      }
-    ],
     "import/no-unassigned-import": [
       "warn",
       {
@@ -33,17 +25,5 @@
         ]
       }
     ]
-  },
-  "overrides": [
-    {
-      "files": [
-        "**/__tests__/**",
-        "**/*.test.ts",
-        "**/*.spec.ts"
-      ],
-      "rules": {
-        "typescript/explicit-function-return-type": "off"
-      }
-    }
-  ]
+  }
 }
