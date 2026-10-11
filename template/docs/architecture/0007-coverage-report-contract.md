@@ -28,9 +28,9 @@ measured stays inside the service; consumers read only that file.
   fixtures collect Chromium's V8 coverage of the Vite dev server and map it back
   to `src/` with Vite's source maps (monocart-coverage-reports), writing
   `frontend/coverage/cobertura.xml`. The generated API client is excluded.
-- **CI:** the shared build workflow mounts `<service>/coverage/` out of the
-  test container. When `./make.sh test` left a `cobertura.xml` there, a small
-  script in the shared repository adds the line and branch rates to the job
+- **CI:** the shared build workflow copies `<service>/coverage/cobertura.xml`
+  out of the test container when `./make.sh test` wrote it. A small
+  script in the shared repository adds its line and branch rates to the job
   summary and to one pull request comment per service. Services without the
   file are skipped silently. There is no threshold.
 
