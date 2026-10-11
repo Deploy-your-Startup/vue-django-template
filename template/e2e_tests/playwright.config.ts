@@ -35,7 +35,7 @@ export default defineConfig({
     : [
         {
           // Measured for coverage; SIGTERM lets the server save its data.
-          command: `cd ../backend && ./make.sh run_dev --port ${backendPort} --reload false --flush true --coverage true`,
+          command: `cd ../backend && ./make.sh run_dev --port ${backendPort} --reload false --flush true --coverage ${process.env.STARTUP_COVERAGE === "true"}`,
           gracefulShutdown: { signal: "SIGTERM", timeout: 10000 },
           url: `http://127.0.0.1:${backendPort}${project.backendHealthPath}`,
           env: {

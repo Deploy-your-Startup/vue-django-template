@@ -90,7 +90,6 @@ Record decisions that shape the project as numbered ADRs in
 - [ADR 0004](docs/architecture/0004-application-structure.md) — load for topology, stack, authentication or database choices.
 - [ADR 0005](docs/architecture/0005-service-command-contract.md) — load when adding a service or changing make.sh, mise tasks or CI.
 - [ADR 0006](docs/architecture/0006-business-logic-in-services.md) — load when adding business rules, queries, transactions or an entry point.
-- [ADR 0007](docs/architecture/0007-coverage-report-contract.md) — load when changing test commands, coverage or the CI test reports.
 
 ## Template updates (Copier)
 
@@ -115,6 +114,13 @@ Before bootstrap: `startup auth0 check --tenant <tenant>`.
 After deploy: `startup auth0 validate --tenant <tenant> --base-domain <domain>`.
 Complete the real login in the browser; the check verifies the private API and
 secure HttpOnly session without saving auth state. Never use agent-supplied passwords.
+
+## Coverage contract
+
+- `./make.sh coverage` runs measured tests and writes `<service>/coverage/cobertura.xml` (Cobertura XML, paths relative to the service).
+- Local `./make.sh test` and browser runs do not measure coverage by default. Generated backend pipelines set `require_coverage: true`; missing or invalid reports fail CI. No percentage threshold is enforced.
+- Measure integration and E2E tests, never add unit tests for coverage.
+- See [Testing](docs/testing.md) for commands and pipeline reports.
 
 ## Shared authentication and KPI tracking
 
