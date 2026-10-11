@@ -13,7 +13,7 @@ spec:
     - host: "{{ base_domain }}"
       http:
         paths:
-{% if oauth_enabled | default(false) | bool %}
+{% if oauth2_proxy_enabled | default(false) | bool %}
           - path: /oauth2
             pathType: Prefix
             backend:
