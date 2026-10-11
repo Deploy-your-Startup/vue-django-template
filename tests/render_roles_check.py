@@ -9,6 +9,7 @@ from ansible.plugins.loader import init_plugin_loader
 import tempfile
 
 import copier
+import json
 import yaml
 
 root = Path(sys.argv[1])
@@ -79,6 +80,7 @@ with tempfile.TemporaryDirectory() as temporary:
     variables = yaml.load((generated / "deployment/group_vars/all.yml").read_text(), Loader=yaml.BaseLoader)
     assert variables["oauth2_proxy_enabled"] == "false" and "oauth_enabled" not in variables
     assert variables["kpis_enabled"] == "false"
+    assert variables["kpis_access_mode"] == "password"
     assert variables["kpis_website_id"] == "8d92b4ec-9a6a-4c50-85e4-b6ea4048f3f8"
     for name in ("kpis_db_password", "kpis_app_secret", "kpis_admin_password"):
         production = yaml.load((generated / "deployment/group_vars/production.yml").read_text(), Loader=yaml.BaseLoader)
@@ -109,6 +111,14 @@ with tempfile.TemporaryDirectory() as temporary:
                                 env=env, capture_output=True, text=True)
         assert result.returncode != 0 and "Apply kpis secret" not in result.stdout
         assert "synthetic-integration-secret" not in result.stdout + result.stderr
+    # GIVEN a generated startup without an enabled OAuth2 Proxy,
+    # WHEN its owner selects OAuth KPI access, THEN the real shared role refuses
+    # the configuration before any Kubernetes apply or Vault access.
+    result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play), "-e", json.dumps({
+        "oauth2_proxy_enabled": False, "kpis_enabled": True, "kpis_access_mode": "oauth2_proxy",
+        "kpis_admin_password": "integration-admin-password", "kpis_db_password": "integration-db-password",
+        "kpis_app_secret": "integration-secret"})], env=env, capture_output=True, text=True)
+    assert result.returncode != 0 and "Apply kpis secret" not in result.stdout
 
     # WHEN running the shipped runtime script, THEN strings stay exact and data
     # cannot become executable JavaScript, including quotes and line breaks.

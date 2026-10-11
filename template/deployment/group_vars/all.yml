@@ -52,4 +52,6 @@ auth_audience: "https://§§deploy_your_startup.base_domain§§/private_api"
 
 # Bootstrap generates the website UUID and all three encrypted KPI secrets.
 kpis_enabled: false
+# Use oauth2_proxy only after configuring and enabling the shared proxy.
+kpis_access_mode: password
 kpis_website_id: "§§deploy_your_startup.kpis_website_id§§"

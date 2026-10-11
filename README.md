@@ -59,3 +59,17 @@ only with both runtime values present and respects Do Not Track. Use the funnel
 `visit → cta_click → signup → activation → return`; page views supply `visit`
 automatically. Mark meaningful actions with `data-umami-event="cta_click"` and
 `data-umami-event-target`.
+
+### KPI dashboard login
+
+KPI tracking remains opt-in (`kpis_enabled: false`). Its login mode defaults to
+`kpis_access_mode: password`, using Umami's admin credentials without requiring
+an OAuth2 Proxy. Set `kpis_access_mode: oauth2_proxy` with
+`oauth2_proxy_enabled: true` to reuse the existing proxy session for a read-only
+traffic and events view. All users accepted by that proxy can read the metrics.
+Umami administration still requires its own account.
+
+This mode requires a shared deployment revision containing the OAuth reader
+configuration: sync that revision, review the project's role pin and workflow
+references, then deploy. Existing group_vars are preserved by template updates.
+See the [shared KPI configuration](https://github.com/Deploy-your-Startup/deploy-template/blob/main/roles/kpis/README.md).
