@@ -81,6 +81,7 @@ with tempfile.TemporaryDirectory() as temporary:
     assert variables["oauth2_proxy_enabled"] == "false" and "oauth_enabled" not in variables
     assert variables["kpis_enabled"] == "false"
     assert variables["kpis_access_mode"] == "password"
+    assert variables["kpis_allowed_emails"] == []
     assert variables["kpis_website_id"] == "8d92b4ec-9a6a-4c50-85e4-b6ea4048f3f8"
     for name in ("kpis_db_password", "kpis_app_secret", "kpis_admin_password"):
         production = yaml.load((generated / "deployment/group_vars/production.yml").read_text(), Loader=yaml.BaseLoader)
@@ -119,6 +120,25 @@ with tempfile.TemporaryDirectory() as temporary:
         "kpis_admin_password": "integration-admin-password", "kpis_db_password": "integration-db-password",
         "kpis_app_secret": "integration-secret"})], env=env, capture_output=True, text=True)
     assert result.returncode != 0 and "Apply kpis secret" not in result.stdout
+
+    # GIVEN the generated empty reader list, WHEN the actual shared preflight
+    # executes in OAuth mode, THEN access configuration must be explicit.
+    guard_variables = yaml.safe_load((roles / "roles/kpis/defaults/main.yml").read_text())
+    guard_variables.update({"kpis_access_mode": "oauth2_proxy", "oauth2_proxy_enabled": True,
+                            "kpis_allowed_emails": variables["kpis_allowed_emails"],
+                            "kpis_website_id": variables["kpis_website_id"],
+                            "kpis_admin_password": "synthetic-admin-password",
+                            "kpis_db_password": "synthetic-db-password",
+                            "kpis_app_secret": "synthetic-app-secret"})
+    guard_task = yaml.safe_load((roles / "roles/kpis/tasks/main.yml").read_text())[0]
+    guard_play = Path(temporary) / "reader-guard.yml"
+    for emails, allowed in (([], False), (["owner@example.com", "analyst+metrics@example.com"], True)):
+        guard_variables["kpis_allowed_emails"] = emails
+        guard_play.write_text(yaml.safe_dump([{"hosts": "localhost", "connection": "local",
+            "gather_facts": False, "vars": guard_variables, "tasks": [guard_task]}]))
+        result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(guard_play)],
+                                env=env, capture_output=True, text=True)
+        assert (result.returncode == 0) is allowed, result.stdout + result.stderr
 
     # WHEN running the shipped runtime script, THEN strings stay exact and data
     # cannot become executable JavaScript, including quotes and line breaks.
