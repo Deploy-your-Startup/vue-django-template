@@ -87,15 +87,28 @@ with tempfile.TemporaryDirectory() as temporary:
     # GIVEN a freshly rendered project with its default settings,
     # WHEN executing the generated guards without credentials, THEN both roles
     # skip entirely; enabling KPI with a short password fails before apply.
-    guarded = [task for task in tasks if task.get("include_role", {}).get("name") in ("oauth2-proxy", "kpis")]
+    guarded = [task for task in tasks if task.get("include_role", {}).get("name") in ("oauth2-proxy", "kpis") or task.get("name") == "Require generated KPI credentials before deployment"]
     play = Path(temporary) / "guard.yml"
     play.write_text(yaml.safe_dump([{"hosts": "localhost", "connection": "local", "gather_facts": False, "vars_files": [str(generated / "deployment/group_vars/all.yml")], "tasks": guarded}]))
     import os
     env = {**os.environ, "ANSIBLE_ROLES_PATH": str(roles / "roles")}
     result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play)], env=env, capture_output=True, text=True)
-    assert result.returncode == 0 and "skipped=2" in result.stdout, result.stdout + result.stderr
+    assert result.returncode == 0 and "skipped=3" in result.stdout, result.stdout + result.stderr
     result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play), "-e", '{"oauth2_proxy_enabled":false,"kpis_enabled":true,"kpis_admin_password":"short"}'], env=env, capture_output=True, text=True)
     assert result.returncode != 0 and "Apply kpis secret" not in result.stdout
+
+    # GIVEN legacy bootstrap has retained a public marker in any KPI field,
+    # WHEN KPI deployment is enabled, THEN it stops before executing the role.
+    for missing in ("kpis_db_password", "kpis_app_secret", "kpis_admin_password"):
+        credentials = {name: "synthetic-integration-secret" for name in
+                       ("kpis_db_password", "kpis_app_secret", "kpis_admin_password")}
+        credentials[missing] = "UNSET"
+        import json
+        result = subprocess.run(["ansible-playbook", "-i", "localhost,", str(play), "-e",
+                                 json.dumps({"oauth2_proxy_enabled": False, "kpis_enabled": True, **credentials})],
+                                env=env, capture_output=True, text=True)
+        assert result.returncode != 0 and "Apply kpis secret" not in result.stdout
+        assert "synthetic-integration-secret" not in result.stdout + result.stderr
 
     # WHEN running the shipped runtime script, THEN strings stay exact and data
     # cannot become executable JavaScript, including quotes and line breaks.
