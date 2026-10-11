@@ -168,11 +168,27 @@
         name: frontend
       tags: frontend
 
+    - name: Remove obsolete local oauth2-proxy role cache
+      delegate_to: localhost
+      become: false
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/roles/oauth2-proxy"
+        state: absent
+      tags: oauth2-proxy
+
     - name: deploy oauth2-proxy
       include_role:
         name: oauth2-proxy
       when: oauth2_proxy_enabled | default(false) | bool
       tags: oauth2-proxy
+
+    - name: Remove obsolete local kpis role cache
+      delegate_to: localhost
+      become: false
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/roles/kpis"
+        state: absent
+      tags: kpis
 
     - name: deploy kpis
       include_role:

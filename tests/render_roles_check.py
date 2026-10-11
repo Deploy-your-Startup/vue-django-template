@@ -66,6 +66,7 @@ with tempfile.TemporaryDirectory() as temporary:
         assert len(imports) == 1 and imports[0]["tags"] == role
         assert toggle in imports[0]["when"]
         assert not (generated / role / "deployment").exists()
+        assert not (generated / "deployment/roles" / role).exists()
         assert not any(task.get("ansible.builtin.copy", {}).get("dest", "").endswith(role) for task in tasks)
     variables = yaml.load((generated / "deployment/group_vars/all.yml").read_text(), Loader=yaml.BaseLoader)
     assert variables["oauth2_proxy_enabled"] == "false" and "oauth_enabled" not in variables
