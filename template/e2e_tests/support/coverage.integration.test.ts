@@ -66,6 +66,7 @@ test("GIVEN unvisited Vue and TypeScript files WHEN browser coverage is reported
       });
     });
     process.env.E2E_FRONTEND_PORT = String(port);
+    process.env.STARTUP_COVERAGE = "true";
     const { startFrontendCoverage, measureFrontend, writeFrontendCoverage } =
       await import("./coverage.ts");
     await startFrontendCoverage();
