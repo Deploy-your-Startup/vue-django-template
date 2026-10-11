@@ -168,18 +168,14 @@
         name: frontend
       tags: frontend
 
-    - name: copy oauth2-proxy role into deployment
-      delegate_to: localhost
-      become: false
-      vars:
-        ansible_python_interpreter: "{{ ansible_playbook_python }}"
-      ansible.builtin.copy:
-        src: ../oauth2-proxy/deployment/
-        dest: ./roles/oauth2-proxy
-      tags: oauth2-proxy
-
     - name: deploy oauth2-proxy
       include_role:
         name: oauth2-proxy
-      when: oauth_enabled | default(false) | bool
+      when: oauth2_proxy_enabled | default(false) | bool
       tags: oauth2-proxy
+
+    - name: deploy kpis
+      include_role:
+        name: kpis
+      when: kpis_enabled | default(false) | bool
+      tags: kpis

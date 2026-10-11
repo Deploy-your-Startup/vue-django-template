@@ -4,11 +4,12 @@ cd "$(dirname "$0")"
 case "${1:-}" in
  help|--help) echo 'Commands: setup_local run_dev run_dev_auth run format lint test build'; exit 0 ;;
  setup_local) npm ci ;;
- run_dev) npm run dev ;;
+ run_dev) DIST_FOLDER=public ./kpis-runtime-env.sh; npm run dev ;;
  run_dev_auth)
+    DIST_FOLDER=public ./kpis-runtime-env.sh
     BACKEND_SERVICE_URL="${BACKEND_SERVICE_URL:-http://localhost:4180}" \
     OAUTH2_PROXY_URL="${OAUTH2_PROXY_URL:-http://localhost:4180}" npm run dev ;;
- run) if [ -x ./runtime-env.sh ]; then ./runtime-env.sh; fi; nginx -g "daemon off;" ;;
+ run) ./kpis-runtime-env.sh; if [ -x ./runtime-env.sh ]; then ./runtime-env.sh; fi; nginx -g "daemon off;" ;;
  format) npm run format; npm run lint:fix ;;
  lint) npm run format:check; npm run lint; npm run type-check ;;
  test) npm run test:unit -- --run ;;
