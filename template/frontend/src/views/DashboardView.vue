@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useEntries } from "../composables/useEntries";
 const title = ref("");
 const { entries, create } = useEntries();
-async function submit() {
+async function submit(): Promise<void> {
   await create.mutateAsync(title.value);
   title.value = "";
 }

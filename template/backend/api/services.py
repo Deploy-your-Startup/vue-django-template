@@ -1,7 +1,7 @@
 from api.models import Entry
 
 
-def list_entries():
+def list_entries() -> list[Entry]:
     return list(Entry.objects.order_by("id"))
 
 

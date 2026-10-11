@@ -2,6 +2,7 @@ from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from api import services
+from api.models import Entry
 
 router = APIRouter(tags=["Startup"])
 private_router = APIRouter(tags=["Startup"])
@@ -26,23 +27,25 @@ class EntryResponse(BaseModel):
 
 
 @router.get("/health", response_model=HealthResponse, operation_id="getHealth")
-async def health():
-    return {"status": "ok"}
+async def health() -> HealthResponse:
+    return HealthResponse(status="ok")
 
 
 @router.get("/entries", response_model=list[EntryResponse], operation_id="getEntries")
-def entries():
+def entries() -> list[Entry]:
     return services.list_entries()
 
 
 @private_router.get(
     "/session", response_model=SessionResponse, operation_id="getSession"
 )
-def session(authorization: str | None = Header(default=None)):
+def session(
+    authorization: str | None = Header(default=None),
+) -> SessionResponse:
     # OAuth2 Proxy validates signature, issuer and audience before forwarding.
     if not authorization:
         raise HTTPException(status_code=401, detail="Authentication required")
-    return {"authenticated": True}
+    return SessionResponse(authenticated=True)
 
 
 @private_router.post(
@@ -51,7 +54,9 @@ def session(authorization: str | None = Header(default=None)):
     status_code=201,
     operation_id="createEntry",
 )
-def create_entry(data: EntryRequest, authorization: str | None = Header(default=None)):
+def create_entry(
+    data: EntryRequest, authorization: str | None = Header(default=None)
+) -> Entry:
     if not authorization:
         raise HTTPException(status_code=401, detail="Authentication required")
     return services.create_entry(data.title)
