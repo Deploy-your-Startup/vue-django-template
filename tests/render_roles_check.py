@@ -79,6 +79,7 @@ with tempfile.TemporaryDirectory() as temporary:
     variables = yaml.load((generated / "deployment/group_vars/all.yml").read_text(), Loader=yaml.BaseLoader)
     assert variables["oauth2_proxy_enabled"] == "false" and "oauth_enabled" not in variables
     assert variables["kpis_enabled"] == "false"
+    assert variables["kpis_access_mode"] == "password"
     assert variables["kpis_website_id"] == "8d92b4ec-9a6a-4c50-85e4-b6ea4048f3f8"
     for name in ("kpis_db_password", "kpis_app_secret", "kpis_admin_password"):
         production = yaml.load((generated / "deployment/group_vars/production.yml").read_text(), Loader=yaml.BaseLoader)
