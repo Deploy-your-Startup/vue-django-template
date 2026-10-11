@@ -15,7 +15,8 @@ FastAPI database routes use TransactionTestCase so the server thread sees fixtur
 and writes are cleaned up between tests. e2e_support bridges the same factories
 to Playwright and is installed only in development. Never add a seed HTTP endpoint.
 
-Declare parameter and return types on every function and method (ADR 0002);
+Declare parameter and return types on public functions and methods (ADR 0002);
+private helper return types may be inferred;
 Ruff enforces it, tests and e2e_support are exempt. Never mock our own code or
 patch external clients in tests: point the client at a small local stand-in
 service instead (ADR 0001).
