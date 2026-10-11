@@ -1,10 +1,12 @@
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
+import { relative } from "node:path";
 import type { Page } from "@playwright/test";
 import {
   CoverageReport,
   type CoverageReportOptions,
 } from "monocart-coverage-reports";
-import { frontendPort } from "./config";
+import { frontendPort } from "./config.ts";
 
 // Frontend coverage comes from the browser tests: Chromium's V8 coverage of the
 // Vite dev server, mapped back to src/ through Vite's source maps and written
@@ -17,7 +19,13 @@ const frontendOrigins = [
   `http://127.0.0.1:${frontendPort}`,
 ];
 
+const frontendRoot = fileURLToPath(new URL("../../frontend", import.meta.url));
+const frontendRequire = createRequire(
+  new URL("../../frontend/package.json", import.meta.url),
+);
+
 const options: CoverageReportOptions = {
+  baseDir: frontendRoot,
   name: "Frontend E2E coverage",
   outputDir: fileURLToPath(new URL("../../frontend/coverage", import.meta.url)),
   reports: [["cobertura", { file: "cobertura.xml" }], ["console-summary"]],
@@ -56,5 +64,37 @@ export async function startFrontendCoverage() {
 }
 
 export async function writeFrontendCoverage() {
-  if (measuresFrontend) await new CoverageReport(options).generate();
+  if (!measuresFrontend) return;
+  // Use the application's own Vite transform for unloaded Vue/TypeScript files.
+  // No listener or backend is needed to add them to the denominator at 0%.
+  const { createServer } = await import(frontendRequire.resolve("vite"));
+  const vite = await createServer({
+    root: frontendRoot,
+    server: { middlewareMode: true, hmr: false, watch: null },
+    appType: "custom",
+  });
+  try {
+    await new CoverageReport({
+      ...options,
+      all: {
+        dir: `${frontendRoot}/src`,
+        filter: (path) =>
+          /\.(vue|ts|js)$/.test(path) &&
+          !path.endsWith(".d.ts") &&
+          !/\.(test|spec)\.[jt]s$/.test(path) &&
+          !path.includes("/__tests__/") &&
+          !path.includes("/services/backend/generated/"),
+        transformer: async (entry) => {
+          const path = relative(frontendRoot, fileURLToPath(entry.url));
+          const transformed = await vite.transformRequest(`/${path}`);
+          if (!transformed)
+            throw new Error(`Cannot measure unvisited source: ${path}`);
+          entry.source = transformed.code;
+          entry.sourceMap = transformed.map;
+        },
+      },
+    }).generate();
+  } finally {
+    await vite.close();
+  }
 }
