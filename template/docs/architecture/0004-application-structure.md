@@ -26,7 +26,7 @@ flowchart LR
    commit and one review.
 2. **Backend: Django and FastAPI in one ASGI application.** Django provides the
    ORM, migrations and admin; FastAPI provides typed HTTP routes and the OpenAPI
-   schema. Routes stay thin and business logic lives in services.
+   schema. Routes stay thin; business logic lives in per-app `services.py` (ADR 0006).
 3. **Frontend: a Vue + TypeScript single-page application** built to static
    files and served by nginx. TanStack Query owns server state. The API client
    is generated from the backend's OpenAPI schema, so the schema is the only
