@@ -8,7 +8,13 @@ import { RouterLink } from "vue-router";
       <p class="eyebrow">An independent builder</p>
       <h1>{{ profile.headline }}</h1>
       <p class="intro">{{ profile.bio }}</p>
-      <a class="button" href="#projects">Explore my work <span>↗</span></a>
+      <a
+        class="button"
+        href="#projects"
+        data-umami-event="cta_click"
+        data-umami-event-target="explore-projects"
+        >Explore my work <span>↗</span></a
+      >
     </section>
     <section id="about" class="section">
       <p class="eyebrow">01 / About</p>
@@ -24,9 +30,12 @@ import { RouterLink } from "vue-router";
       <div class="projects">
         <article v-for="project in profile.projects" :key="project.title">
           <h3>
-            <RouterLink :to="`/projects/${project.slug}`">{{
-              project.title
-            }}</RouterLink>
+            <RouterLink
+              :to="`/projects/${project.slug}`"
+              data-umami-event="cta_click"
+              :data-umami-event-target="project.slug"
+              >{{ project.title }}</RouterLink
+            >
           </h3>
           <p>{{ project.description }}</p>
           <ul class="tags">
