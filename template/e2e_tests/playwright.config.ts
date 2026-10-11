@@ -16,6 +16,8 @@ if (process.env.E2E_BASE_URL && project.allowLiveSmoke === false) {
 }
 export default defineConfig({
   testDir: "./tests",
+  globalSetup: "./support/global-setup.ts",
+  globalTeardown: "./support/global-teardown.ts",
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
@@ -32,7 +34,9 @@ export default defineConfig({
     ? undefined
     : [
         {
-          command: `cd ../backend && ./make.sh run_dev --port ${backendPort} --reload false --flush true`,
+          // Measured for coverage; SIGTERM lets the server save its data.
+          command: `cd ../backend && ./make.sh run_dev --port ${backendPort} --reload false --flush true --coverage true`,
+          gracefulShutdown: { signal: "SIGTERM", timeout: 10000 },
           url: `http://127.0.0.1:${backendPort}${project.backendHealthPath}`,
           env: {
             // Never inherit the development database: this server flushes it.
