@@ -66,7 +66,9 @@ KPI tracking remains opt-in (`kpis_enabled: false`). Its login mode defaults to
 `kpis_access_mode: password`, using Umami's admin credentials without requiring
 an OAuth2 Proxy. Set `kpis_access_mode: oauth2_proxy` with
 `oauth2_proxy_enabled: true` to reuse the existing proxy session for a read-only
-traffic and events view. All users accepted by that proxy can read the metrics.
+traffic and events view. Set `kpis_allowed_emails` to the exact session emails
+permitted to read metrics; OAuth mode requires a non-empty list and rejects
+unlisted users without changing the application login policy.
 Umami administration still requires its own account.
 
 This mode requires a shared deployment revision containing the OAuth reader
