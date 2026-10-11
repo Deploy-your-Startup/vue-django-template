@@ -54,4 +54,6 @@ auth_audience: "https://§§deploy_your_startup.base_domain§§/private_api"
 kpis_enabled: false
 # Use oauth2_proxy only after configuring and enabling the shared proxy.
 kpis_access_mode: password
+# Exact session emails allowed to read KPIs; fill before selecting oauth2_proxy.
+kpis_allowed_emails: []
 kpis_website_id: "§§deploy_your_startup.kpis_website_id§§"
