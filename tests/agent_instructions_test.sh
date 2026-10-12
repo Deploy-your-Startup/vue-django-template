@@ -39,6 +39,15 @@ with tempfile.TemporaryDirectory() as temporary:
     assert "GIVEN / WHEN / THEN" in instructions
     assert "## Testing" in instructions
 
+    # THEN the security obligations survive the real Copier render too.
+    assert "## Security before public sharing" in instructions
+    for rule in ["other-account", "CSRF", "per user", "rate-limit login",
+                 "Secure/HttpOnly", "HSTS", "noindex", "live behaviour"]:
+        assert rule in instructions, f"Missing security instruction: {rule}"
+    assert "only when configured and enabled" in instructions
+    assert "app authorization, write CSRF protection and quotas still apply" in instructions
+    assert "Local Django/admin login" in instructions
+
     # All local links resolve inside the generated project, not the source repo.
     linked_adrs = set()
     for document in [project / "AGENTS.md", *sorted((project / "docs/architecture").glob("*.md"))]:
