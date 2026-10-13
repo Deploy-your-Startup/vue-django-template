@@ -1,0 +1,68 @@
+services:
+  db:
+    image: postgres:§§deploy_your_startup.postgres_version§§
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: e2e
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U admin -d e2e
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    tmpfs:
+    - /var/lib/postgresql
+  test:
+    image: ${E2E_IMAGE:?Build the E2E image first}
+    depends_on:
+      db:
+        condition: service_healthy
+      mock-oauth2-proxy:
+        condition: service_started
+    environment:
+      CI: 'true'
+      E2E_DATABASE_URL: postgres://admin:admin@db:5432/e2e
+      DATABASE_URL: postgres://admin:admin@db:5432/e2e
+      SHARD_INDEX: ${SHARD_INDEX:-1}
+      SHARD_TOTAL: ${SHARD_TOTAL:-1}
+      STARTUP_COVERAGE: 'true'
+      E2E_CONTAINER: 'true'
+    shm_size: 1gb
+  oidc:
+    image: ghcr.io/navikt/mock-oauth2-server:2.1.10
+    environment:
+      JSON_CONFIG: "{\n  \"interactiveLogin\": true,\n  \"tokenCallbacks\": [\n    {\n      \"issuerId\"\
+        : \"default\",\n      \"requestMappings\": [\n        {\n          \"requestParam\": \"grant_type\"\
+        ,\n          \"match\": \"authorization_code\",\n          \"claims\": {\n            \"email\"\
+        : \"user@example.com\",\n            \"aud\": [\"startup-web\", \"startup-api\"]\n     \
+        \     }\n        },\n        {\n          \"requestParam\": \"scope\",\n          \"match\": \"\
+        *\",\n          \"claims\": {\n            \"email\": \"user@example.com\",\n            \"aud\"\
+        : [\"startup-web\", \"startup-api\"]\n          }\n        }\n      ]\n    }\n  ]\n}"
+  mock-oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.13.0
+    depends_on:
+    - oidc
+    command:
+    - --provider=oidc
+    - --skip-oidc-discovery=true
+    - --oidc-issuer-url=http://oidc:8080/default
+    - --redeem-url=http://oidc:8080/default/token
+    - --oidc-jwks-url=http://oidc:8080/default/jwks
+    - --login-url=http://localhost:8098/default/authorize
+    - --client-id=startup-web
+    - --client-secret=local-development-only
+    - --cookie-secret=YWJvdXQtcGhpbC1sb2NhbC1kZXYtY29va2llLWtleSE=
+    - --cookie-secure=false
+    - --email-domain=*
+    - --http-address=0.0.0.0:4180
+    - --redirect-url=http://localhost:8081/oauth2/callback
+    - --whitelist-domain=localhost:8081
+    - --upstream=http://test:8001
+    - --reverse-proxy=true
+    - --skip-jwt-bearer-tokens=true
+    - --extra-jwt-issuers=http://oidc:8080/default=startup-api
+    - --pass-authorization-header=true
+    - --skip-auth-route=!=^/private_api
+    - --skip-auth-route=OPTIONS=^/private_api

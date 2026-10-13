@@ -95,3 +95,12 @@ jobs:
           files: |
             backend=../generated/backend/coverage/cobertura.xml
             frontend=../generated/frontend/coverage/cobertura.xml
+
+  container-e2e:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: bash tests/container_e2e_test.sh
