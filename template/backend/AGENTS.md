@@ -21,6 +21,7 @@ Ruff enforces it, tests and e2e_support are exempt. Never mock our own code or
 patch external clients in tests: point the client at a small local stand-in
 service instead (ADR 0001).
 
-Integration and E2E tests only, never unit tests (ADR 0001). Exercise real
+Integration tests are the default; changed user flows require E2E tests.
+Unit tests are reserved for complex algorithms (ADR 0001). Exercise real
 persistence and collaborators; do not mock services. Keep GIVEN / WHEN / THEN
 explicit, with one business action per scenario.
