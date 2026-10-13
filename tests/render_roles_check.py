@@ -30,12 +30,15 @@ with tempfile.TemporaryDirectory() as temporary:
     callers = [yaml.safe_load(path.read_text()) for path in workflows]
     shared_jobs = [job for workflow in callers for job in workflow.get("jobs", {}).values()
                    if "/deploy-your-startup/" in job.get("uses", "")]
-    assert len(shared_jobs) == 4
+    assert len(shared_jobs) == 3
     assert all(job["uses"].endswith("@codex/shared-cluster") for job in shared_jobs)
     assert not any("§§deploy_your_startup.deploy_ref§§" in path.read_text() for path in workflows)
     # GIVEN a real generated backend, WHEN CI calls the shared harness,
     # THEN coverage is required and the portable instructions define its contract.
-    backend_job = next(job for job in shared_jobs if job.get("with", {}).get("service") == "backend")
+    backend_job = next(job for job in shared_jobs if job.get("with", {}).get("service") == "application")
+    assert backend_job["with"]["run_e2e"] is True
+    assert backend_job["with"]["e2e_shards"] == 2
+    assert {item["service"] for item in json.loads(backend_job["with"]["services"])} == {"backend", "frontend"}
     assert backend_job["with"]["run_tests"] is True
     assert backend_job["with"]["require_coverage"] is True
     assert backend_job["with"]["coverage_measured_from"] == "Integration"
