@@ -18,6 +18,7 @@ export default defineConfig({
   testDir: "./tests",
   globalSetup: "./support/global-setup.ts",
   globalTeardown: "./support/global-teardown.ts",
+  fullyParallel: true,
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
@@ -40,7 +41,9 @@ export default defineConfig({
           url: `http://127.0.0.1:${backendPort}${project.backendHealthPath}`,
           env: {
             // Never inherit the development database: this server flushes it.
-            DATABASE_URL: process.env.E2E_DATABASE_URL || "",
+            ...(process.env.E2E_DATABASE_URL
+              ? { DATABASE_URL: process.env.E2E_DATABASE_URL }
+              : {}),
             LOCAL_DB_NAME: databaseName.replaceAll("-", "_"),
             POSTGRES_PORT: DB_PORT,
           },
@@ -48,7 +51,10 @@ export default defineConfig({
           timeout: 300000,
         },
         {
-          command: "./scripts/start-auth-stack.sh",
+          command:
+            process.env.E2E_CONTAINER === "true"
+              ? "node scripts/container-auth.ts"
+              : "./scripts/start-auth-stack.sh",
           gracefulShutdown: { signal: "SIGTERM", timeout: 10000 },
           url: `http://localhost:${proxyPort}/ping`,
           timeout: 180000,

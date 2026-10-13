@@ -1,4 +1,4 @@
-name: Build and Deploy Backend
+name: Build and Deploy Application
 
 on:
   # PRs run build + test + lint. Every deploy step in the shared workflow is
@@ -8,13 +8,19 @@ on:
   pull_request:
     paths:
       - 'backend/**'
-      - '!backend/deployment/**'
+      - 'frontend/**'
+      - 'e2e_tests/**'
+      - '.dockerignore'
+      - '.github/workflows/build-and-deploy-backend.yml'
   push:
     branches:
       - main
     paths:
       - 'backend/**'
-      - '!backend/deployment/**'
+      - 'frontend/**'
+      - 'e2e_tests/**'
+      - '.dockerignore'
+      - '.github/workflows/build-and-deploy-backend.yml'
   workflow_dispatch:
     inputs:
       environment:
@@ -24,11 +30,14 @@ on:
 
 jobs:
   build-and-deploy:
-    uses: §§deploy_your_startup.github_username§§/§§deploy_your_startup.deploy_repo_name§§/.github/workflows/build-and-deploy-service.yml@§§deploy_your_startup.deploy_ref§§
+    uses: §§deploy_your_startup.github_username§§/§§deploy_your_startup.deploy_repo_name§§/.github/workflows/build-and-deploy-service-parallel.yml@§§deploy_your_startup.deploy_ref§§
     with:
       environment: ${{ github.event.inputs.environment || 'production' }}
       platforms: linux/amd64
-      service: backend
+      service: application
+      services: '[{"service":"backend"},{"service":"frontend","require_coverage":false}]'
+      run_e2e: true
+      e2e_shards: 2
       run_tests: true
       require_coverage: true
       coverage_measured_from: Integration

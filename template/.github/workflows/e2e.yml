@@ -1,27 +1,13 @@
-name: Full-stack E2E
+name: API client contract
 on:
   pull_request:
-    paths: ['backend/**', 'frontend/**', 'e2e_tests/**', '.github/workflows/e2e.yml']
+    paths: ['backend/**', 'frontend/**', '.github/workflows/e2e.yml']
   push:
     branches: [main]
-    paths: ['backend/**', 'frontend/**', 'e2e_tests/**', '.github/workflows/e2e.yml']
-  workflow_dispatch:
+    paths: ['backend/**', 'frontend/**', '.github/workflows/e2e.yml']
 jobs:
-  browser:
+  schema:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: admin
-          POSTGRES_DB: e2e
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U admin"
-          --health-interval 5s --health-timeout 5s --health-retries 12
-    env:
-      E2E_DATABASE_URL: postgres://admin:admin@127.0.0.1:5432/e2e
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -30,29 +16,3 @@ jobs:
           node-version: '24'
       - run: cd frontend && npm ci
       - run: cd backend && ./make.sh generate_client --check
-      - run: cd e2e_tests && npm ci && npx playwright install --with-deps chromium
-      # Integration data first, so the backend report covers both test levels.
-      - run: cd backend && ./make.sh coverage
-        env:
-          DATABASE_URL: postgres://admin:admin@127.0.0.1:5432/e2e
-      - run: cd e2e_tests && ./make.sh lint && STARTUP_COVERAGE=true ./make.sh test_e2e
-      # Require both measured services before publishing the E2E artifact.
-      - name: Validate coverage reports
-        run: |
-          python - <<'PYTHON'
-          from pathlib import Path
-          from xml.etree import ElementTree
-          for service in ("backend", "frontend"):
-              path = Path(service) / "coverage/cobertura.xml"
-              root = ElementTree.parse(path).getroot()
-              assert root.tag == "coverage", f"{path}: expected Cobertura"
-              assert root.get("lines-valid") is not None or root.get("line-rate") is not None, f"{path}: missing line metrics"
-          PYTHON
-      - uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: coverage
-          path: |
-            backend/coverage/cobertura.xml
-            frontend/coverage/cobertura.xml
-          if-no-files-found: error
