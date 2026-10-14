@@ -9,6 +9,8 @@ const router = createRouter({
     return to.hash ? { el: to.hash, behavior: "smooth" } : { top: 0 };
   },
   routes: [
+    { path: "/impressum", component: () => import("../views/LegalView.vue") },
+    { path: "/privacy", component: () => import("../views/LegalView.vue") },
     { path: "/", name: "home", component: HomeView },
     {
       path: "/projects/:slug",

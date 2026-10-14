@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LegalLinks from "./components/LegalLinks.vue";
 import { RouterLink, RouterView } from "vue-router";
 import { useAuth } from "./composables/useAuth";
 import { profile } from "./data/profile";
@@ -22,6 +23,7 @@ const { identity, login, logout, isLoading } = useAuth();
   </header>
   <RouterView />
   <footer class="shell">
+    <LegalLinks />
     <span>{{ profile.name }}</span>
     <p role="status">
       {{

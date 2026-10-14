@@ -79,3 +79,7 @@ run = "./make.sh auth_down"
 [tasks."frontend:dev-auth"]
 dir = "frontend"
 run = "./make.sh run_dev_auth"
+
+[tasks."e2e:privacy"]
+dir = "e2e_tests"
+run = "./make.sh test_privacy"
