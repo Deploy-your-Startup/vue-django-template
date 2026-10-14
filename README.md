@@ -55,7 +55,8 @@ Bootstrap creates a stable public `kpis_website_id` and encrypts
 Set `kpis_enabled: false` and deploy the frontend to stop tracking; this skips
 the role and preserves existing analytics data. Disabling tracking does not
 remove an already deployed KPI service or release its resources. The frontend loads one tracker
-only with both runtime values present and respects Do Not Track. Use the funnel
+only with both runtime values present, reviewed site-policy.json disclosures,
+analytics set to consent and visitor permission; it respects Do Not Track. Use the funnel
 `visit → cta_click → signup → activation → return`; page views supply `visit`
 automatically. Mark meaningful actions with `data-umami-event="cta_click"` and
 `data-umami-event-target`.
@@ -75,3 +76,6 @@ This mode requires a shared deployment revision containing the OAuth reader
 configuration: sync that revision, review the project's role pin and workflow
 references, then deploy. Existing group_vars are preserved by template updates.
 See the [shared KPI configuration](https://github.com/Deploy-your-Startup/deploy-template/blob/main/roles/kpis/README.md).
+
+See [legal information and local consent](template/docs/privacy.md) for operator configuration,
+analytics opt-in and browser verification. No consent-service account is required.

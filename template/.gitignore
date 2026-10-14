@@ -4,3 +4,4 @@
 deployment/.shared-roles/
 deployment/.venv/
 deployment/roles/
+**/privacy-test-results/

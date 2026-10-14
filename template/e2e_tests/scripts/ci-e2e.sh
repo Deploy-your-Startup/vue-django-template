@@ -6,7 +6,7 @@ mkdir -p /reports
 STARTUP_COVERAGE=false node --test support/coverage.disabled.integration.test.ts support/coverage.integration.test.ts
 status=0
 ./make.sh test_e2e --shard="${SHARD_INDEX:-1}/${SHARD_TOTAL:-1}" || status=$?
-for report in test-results playwright-report; do
+for report in test-results playwright-report privacy-test-results; do
     if [ -d "$report" ]; then cp -R "$report" /reports/; fi
 done
 for service in backend frontend; do

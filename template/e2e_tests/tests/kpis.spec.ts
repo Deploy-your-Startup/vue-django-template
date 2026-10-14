@@ -3,7 +3,7 @@ import { test, expect } from "../support/fixtures";
 const scriptUrl = "https://kpis.example.test/script.js";
 const websiteId = "8d92b4ec-9a6a-4c50-85e4-b6ea4048f3f8";
 
-test("loads one DNT-aware tracker and keeps it across navigation", async ({
+test("keeps unreviewed analytics disabled across navigation", async ({
   page,
 }) => {
   // GIVEN public runtime configuration and a local tracking service stand-in.
@@ -20,19 +20,16 @@ test("loads one DNT-aware tracker and keeps it across navigation", async ({
   });
   // WHEN a visitor opens the page.
   await page.goto("/");
-  // THEN one tracker is configured and the project action carries a funnel event.
+  // THEN no tracker loads and project actions retain their event metadata.
   const tracker = page.locator("script[data-website-id]");
-  await expect(tracker).toHaveCount(1);
-  await expect(tracker).toHaveAttribute("data-website-id", websiteId);
-  await expect(tracker).toHaveAttribute("data-do-not-track", "true");
-  await expect(tracker).toHaveAttribute("defer", "");
+  await expect(tracker).toHaveCount(0);
   const project = page.locator("#projects a").first();
   await expect(project).toHaveAttribute("data-umami-event", "cta_click");
   // WHEN navigating within the SPA.
   await project.click();
-  // THEN navigation retains the existing tracker.
-  await expect(tracker).toHaveCount(1);
-  expect(requests).toBe(1);
+  // THEN navigation does not bypass consent.
+  await expect(tracker).toHaveCount(0);
+  expect(requests).toBe(0);
 });
 
 for (const missing of ["both", "script", "id"]) {
