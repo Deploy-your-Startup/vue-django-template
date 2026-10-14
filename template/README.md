@@ -24,3 +24,6 @@ For a deployed-site smoke test (no local servers or database flush):
 ```bash
 E2E_BASE_URL=https://§§deploy_your_startup.base_domain§§ mise run e2e:test
 ```
+
+See [legal information and local consent](docs/privacy.md) for operator configuration,
+analytics opt-in and browser verification. No consent-service account is required.
