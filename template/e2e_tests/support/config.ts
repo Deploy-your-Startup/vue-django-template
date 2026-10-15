@@ -14,7 +14,7 @@ export const databaseUrl =
   process.env.E2E_DATABASE_URL ||
   `postgres://admin:admin@127.0.0.1:${process.env.E2E_DB_PORT || process.env.E2E_POSTGRES_PORT || "55432"}/${databaseName}`;
 
-// Stable aliases for applications extracted from Example App.
+// Stable aliases for application-specific test configuration.
 export const BACKEND_PORT = backendPort;
 export const FRONTEND_PORT = frontendPort;
 export const AUTH_PROXY_PORT = proxyPort;
