@@ -37,7 +37,7 @@ jobs:
       service: application
       services: '[{"service":"backend"},{"service":"frontend","require_coverage":false}]'
       run_e2e: true
-      e2e_shards: 2
+      e2e_shards: 1
       run_tests: true
       require_coverage: true
       coverage_measured_from: Integration

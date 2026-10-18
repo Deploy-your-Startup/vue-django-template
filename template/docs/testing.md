@@ -23,8 +23,9 @@ artifact. Its backend report combines integration and browser measurements.
 ## Parallel container checks
 
 The shared application workflow runs integration tests, production image builds
-and two isolated browser shards concurrently. Every service waits for the same
-E2E gate before its already-built production image can be published. Browser
+and isolated browser shards concurrently: one by default, more through
+`e2e_shards`. Every service waits for the same E2E gate before its
+already-built production image can be published. Browser
 and OIDC tooling lives in `e2e_tests/Dockerfile`; production images stay unchanged.
 Each Compose shard owns its database and reports. Run `./make.sh ci_e2e` in that
 image with `SHARD_INDEX` and `SHARD_TOTAL`; the shared workflow collects `/reports`.
