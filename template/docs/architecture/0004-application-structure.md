@@ -23,7 +23,7 @@ flowchart LR
 
 1. **One repository** holds every service (`backend`, `frontend`, `e2e_tests`,
    `oauth2-proxy`, `deployment`). An API change and its UI change are one
-   commit and one review.
+   commit and one review. See ADR 0009.
 2. **Backend: Django and FastAPI in one ASGI application.** Django provides the
    ORM, migrations and admin; FastAPI provides typed HTTP routes and the OpenAPI
    schema. Routes stay thin; business logic lives in per-app `services.py` (ADR 0006).
