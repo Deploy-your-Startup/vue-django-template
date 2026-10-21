@@ -34,7 +34,7 @@ updates:
     # typescript-eslint 8 supports TypeScript <6.1; lift with toolchain support.
     ignore:
       - dependency-name: typescript
-        versions: [">=7.0.0"]
+        versions: [">=6.1.0"]
     schedule:
       interval: weekly
     groups:
