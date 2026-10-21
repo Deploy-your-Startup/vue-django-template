@@ -31,6 +31,10 @@ updates:
   - package-ecosystem: npm
     directories:
       - /template/frontend
+    # typescript-eslint 8 supports TypeScript <6.1; lift with toolchain support.
+    ignore:
+      - dependency-name: typescript
+        versions: [">=7.0.0"]
     schedule:
       interval: weekly
     groups:
