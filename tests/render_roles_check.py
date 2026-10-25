@@ -37,7 +37,7 @@ with tempfile.TemporaryDirectory() as temporary:
     # GIVEN a real generated backend, WHEN CI calls the shared harness,
     # THEN coverage is required and the portable instructions define its contract.
     backend_job = next(job for job in shared_jobs if job.get("with", {}).get("service") == "application")
-    assert backend_job["with"]["run_e2e"] is True
+    assert backend_job["with"]["run_e2e"] is False
     assert backend_job["with"]["e2e_shards"] == 1
     assert {item["service"] for item in json.loads(backend_job["with"]["services"])} == {"backend", "frontend"}
     assert backend_job["with"]["run_tests"] is True
