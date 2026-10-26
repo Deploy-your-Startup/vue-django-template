@@ -1,7 +1,7 @@
 # Frontend
 Vue + TypeScript with TanStack Query for API state. Content lives in
 src/data/profile.ts. Keep personal data and secrets out of the reusable template.
-make.sh format writes; lint checks formatting, Oxlint, ESLint (Vue templates) and types.
+make.sh format writes; lint checks formatting, Oxlint, ESLint (Vue templates), types and Dependency Cruiser imports.
 /api is proxied to the backend by Vite locally and nginx in production.
 Use factories and one GIVEN / WHEN / THEN action for tests.
 
@@ -26,3 +26,6 @@ Components:
 - Prefer native HTML elements (`<dialog>`, `<details>`, `<form>`) over
   reimplementing their behaviour with key listeners or focus handling.
 - Keep interactions accessible: every control has a role and a visible label.
+
+Extend `.dependency-cruiser.cjs` as modules are added (ADR [0011](../docs/architecture/0011-module-boundaries.md)).
+`make.sh test` exercises the real analyzer with allowed and forbidden imports.

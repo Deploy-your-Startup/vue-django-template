@@ -11,8 +11,8 @@ case "${1:-}" in
     OAUTH2_PROXY_URL="${OAUTH2_PROXY_URL:-http://localhost:4180}" npm run dev ;;
  run) ./kpis-runtime-env.sh; if [ -x ./runtime-env.sh ]; then ./runtime-env.sh; fi; nginx -g "daemon off;" ;;
  format) npm run format; npm run lint:fix ;;
- lint) npm run format:check; npm run lint; npm run type-check ;;
- test) npm run test:unit -- --run ;;
+ lint) npm run format:check; npm run lint; npm run type-check; npm run lint:architecture ;;
+ test) npm run test:unit -- --run; npm run test:architecture ;;
  build) npm run build ;;
  *) if [ -x ./make.project.sh ]; then exec ./make.project.sh "$@"; fi; echo 'Usage: ./make.sh {setup_local|run_dev|run|format|lint|test|build}'; exit 2 ;;
 esac
