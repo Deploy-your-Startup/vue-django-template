@@ -13,14 +13,16 @@
     "lint": "oxlint --deny-warnings && eslint .",
     "format": "prettier --write src/",
     "lint:fix": "oxlint --fix && eslint . --fix",
-    "format:check": "prettier --check src/"
+    "format:check": "prettier --check src/",
+    "lint:architecture": "depcruise --config .dependency-cruiser.cjs src --output-type err-long",
+    "test:architecture": "node --test tests/architecture.checks.mjs"
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.104.4",
     "bootstrap": "^5.3.8",
+    "vanilla-cookieconsent": "3.1.0",
     "vue": "^3.5.44",
-    "vue-router": "^5.4.0",
-    "vanilla-cookieconsent": "3.1.0"
+    "vue-router": "^5.4.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.16.1",
@@ -32,6 +34,7 @@
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/test-utils": "^2.5.1",
     "@vue/tsconfig": "^0.9.1",
+    "dependency-cruiser": "18.7.0",
     "eslint": "^10.13.0",
     "eslint-plugin-oxlint": "^1.88.0",
     "eslint-plugin-vue": "^10.11.1",

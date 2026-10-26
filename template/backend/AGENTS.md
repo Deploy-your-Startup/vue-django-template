@@ -24,3 +24,6 @@ service instead (ADR 0001).
 Follow [Testing policy and completion evidence](../docs/testing-policy.md) and
 [ADR 0001](../docs/architecture/0001-test-strategy.md); exercise real persistence
 and collaborators and do not mock services.
+
+Import checks run in `make.sh lint` (ADR [0011](../docs/architecture/0011-module-boundaries.md)).
+Extend the concrete scopes in `tach.toml` when adding apps or layers.
