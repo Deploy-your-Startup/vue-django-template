@@ -26,4 +26,4 @@ Follow [Testing policy and completion evidence](../docs/testing-policy.md) and
 and collaborators and do not mock services.
 
 Import checks run in `make.sh lint` (ADR [0011](../docs/architecture/0011-module-boundaries.md)).
-Extend the concrete scopes in `pyproject.toml` when adding apps or layers.
+Extend the concrete scopes in `tach.toml` when adding apps or layers.
