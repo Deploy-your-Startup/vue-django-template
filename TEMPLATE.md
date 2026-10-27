@@ -10,6 +10,8 @@ No write API depends on a missing proxy. All /api traffic is same-origin.
 
 CI renders a new app and runs backend/frontend lint, tests and browser E2E.
 The template contains only public questions. Existing group_vars are protected.
+`docs/product.md` seeds the owner's product description once; agents find it
+through AGENTS.md and the link check keeps its sections.
 
 Shared workflow: pinned OpenAPI → TypeScript client, cookie-enabled
 API services, TanStack Query and mutations, shared auth cache/router guards,
