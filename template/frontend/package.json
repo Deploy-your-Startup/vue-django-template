@@ -18,7 +18,7 @@
     "test:architecture": "node --test tests/architecture.checks.mjs"
   },
   "dependencies": {
-    "@tanstack/vue-query": "^5.104.4",
+    "@tanstack/vue-query": "^5.104.5",
     "bootstrap": "^5.3.8",
     "vanilla-cookieconsent": "3.1.0",
     "vue": "^3.5.44",
