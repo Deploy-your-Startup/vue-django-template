@@ -17,7 +17,7 @@ startup doctor
 startup bootstrap --kind fullstack --provider hetzner --domain-owned \
   --project-name my-startup --base-domain example.com \
   --template https://github.com/Deploy-your-Startup/vue-django-template.git \
-  --template-version v0.1.3 --without-auth
+  --template-version v0.1.9 --without-auth
 ```
 
 Use your own project name and domain. Verify GitHub Actions, DNS, HTTPS and the
