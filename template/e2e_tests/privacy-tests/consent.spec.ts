@@ -1,6 +1,9 @@
 import { test, expect } from "@playwright/test";
 
-test("legal pages remain reachable without consent", async ({ page }, info) => {
+test("legal pages remain reachable without consent", async ({
+  page,
+  context,
+}, info) => {
   // GIVEN a visitor with no consent cookie
   // WHEN opening the legal page directly
   await page.goto("/impressum");
@@ -17,12 +20,21 @@ test("legal pages remain reachable without consent", async ({ page }, info) => {
   ).toBeVisible();
   const legalNavigation =
     info.project.name === "consent"
-      ? page.getByRole("dialog")
+      ? page.getByRole("region").filter({
+          has: page.getByRole("heading", {
+            name: "Your privacy choices",
+            exact: true,
+          }),
+        })
       : page.locator('nav[aria-label="Legal and privacy"]');
   await legalNavigation.getByRole("link", { name: "Privacy policy" }).click();
   await expect(
     page.getByRole("heading", { name: "Privacy policy", exact: true }),
   ).toBeVisible();
+  expect(
+    (await context.cookies()).some((cookie) => cookie.name === "site_consent"),
+  ).toBe(false);
+  await expect(page.locator("script[data-website-id]")).toHaveCount(0);
   if (info.project.name === "draft")
     await expect(
       page.getByRole("status").filter({ hasText: "Draft" }),
@@ -51,7 +63,9 @@ test("analytics is blocked by default and stays blocked after rejection", async 
   // THEN no tracker was fetched, including after a reload
   expect(requests).toBe(0);
   await expect(page.locator("script[data-website-id]")).toHaveCount(0);
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Your privacy choices", exact: true }),
+  ).toBeHidden();
   const cookies = await context.cookies();
   expect(cookies.some((cookie) => cookie.name === "site_consent")).toBe(
     info.project.name === "consent",
