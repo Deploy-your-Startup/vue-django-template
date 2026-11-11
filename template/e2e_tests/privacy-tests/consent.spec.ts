@@ -165,6 +165,8 @@ test("outdated consent requires a fresh decision", async ({
   )!;
   const saved = JSON.parse(decodeURIComponent(cookie.value));
   saved.revision = 0;
+  // Stop the already-consented document before measuring a fresh visit.
+  await page.goto("about:blank");
   await context.addCookies([
     { ...cookie, value: encodeURIComponent(JSON.stringify(saved)) },
   ]);
@@ -173,7 +175,7 @@ test("outdated consent requires a fresh decision", async ({
     if (request.url().includes("test-tracker")) requests++;
   });
   // WHEN returning after the policy revision changed
-  await page.reload();
+  await page.goto("/privacy");
   // THEN the banner returns and the old choice cannot authorize analytics
   await expect(
     page.getByRole("button", { name: "Accept analytics", exact: true }),
