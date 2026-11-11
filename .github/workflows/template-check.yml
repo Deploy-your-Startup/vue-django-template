@@ -80,7 +80,9 @@ jobs:
         run: ./make.sh generate_client --check
       - name: Install browser test dependencies
         working-directory: ../generated/e2e_tests
-        run: npm ci && npx playwright install --with-deps chromium
+        # Hosted runners include Chromium libraries; avoid an unrelated apt/font download.
+        # The container E2E job still installs its complete OS dependencies.
+        run: npm ci && npx playwright install chromium
       - name: Test browser coverage reporting
         working-directory: ../generated/e2e_tests
         run: node --test support/coverage.disabled.integration.test.ts support/coverage.integration.test.ts
