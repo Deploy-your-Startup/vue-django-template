@@ -38,6 +38,8 @@ with tempfile.TemporaryDirectory() as temporary:
     # THEN coverage is required and the portable instructions define its contract.
     backend_job = next(job for job in shared_jobs if job.get("with", {}).get("service") == "application")
     assert backend_job["with"]["run_e2e"] is False
+    # The shared build lives under another owner, so the caller grants what it nests.
+    assert backend_job["permissions"] == {"contents": "read", "actions": "read", "pull-requests": "write", "packages": "write", "id-token": "write"}
     assert backend_job["with"]["e2e_shards"] == 1
     assert {item["service"] for item in json.loads(backend_job["with"]["services"])} == {"backend", "frontend"}
     assert backend_job["with"]["run_tests"] is True
