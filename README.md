@@ -21,10 +21,10 @@ startup bootstrap --kind fullstack --provider hetzner --domain-owned \
 ```
 
 Use your own project name and domain. Verify GitHub Actions, DNS, HTTPS and the
-application health before calling the first deployment complete. For an existing
-owner deployment copy, preview and sync shared deployment `v0.1.5` before enabling
-this template's required CI coverage. `startup sync` updates shared deployments;
-`startup template update` updates application files.
+application health before calling the first deployment complete. Generated
+projects call `Deploy-your-Startup/deploy` and are pinned to one of its releases;
+`startup update` moves a project to a newer release and `startup template update`
+updates application files.
 
 Source of truth for the product vision: [Deploy Your Startup](https://deploy-your-startup.com).
 
@@ -36,7 +36,8 @@ with `--cluster <descriptor>`. Each application keeps its own namespace, Vault,
 database and media volumes. The owner manages cluster-wide operations, including
 Ubuntu release upgrades. Review policies and per-startup backups before
 maintenance; local volumes do not provide storage failover. `deploy_ref` selects
-a reviewed shared deployment ref for generated workflows (default: `main`).
+the shared deployment release commit for generated workflows (default: `v1.0.0`);
+`deploy_repository` names the repository, `Deploy-your-Startup/deploy` or a fork.
 
 ## Shared authentication and KPI tracking
 
@@ -72,10 +73,10 @@ permitted to read metrics; OAuth mode requires a non-empty list and rejects
 unlisted users without changing the application login policy.
 Umami administration still requires its own account.
 
-This mode requires a shared deployment revision containing the OAuth reader
-configuration: sync that revision, review the project's role pin and workflow
-references, then deploy. Existing group_vars are preserved by template updates.
-See the [shared KPI configuration](https://github.com/Deploy-your-Startup/deploy-template/blob/main/roles/kpis/README.md).
+This mode requires a shared deployment release containing the OAuth reader
+configuration: adopt it with `startup update`, review the project's role pin and
+workflow references, then deploy. Existing group_vars are preserved by template updates.
+See the [shared KPI configuration](https://github.com/Deploy-your-Startup/deploy/blob/main/roles/kpis/README.md).
 
 See [legal information and local consent](template/docs/privacy.md) for operator configuration,
 analytics opt-in and browser verification. No consent-service account is required.

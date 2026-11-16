@@ -30,7 +30,7 @@ with tempfile.TemporaryDirectory() as temporary:
     workflows = list((generated / ".github/workflows").glob("*.yml"))
     callers = [yaml.safe_load(path.read_text()) for path in workflows]
     shared_jobs = [job for workflow in callers for job in workflow.get("jobs", {}).values()
-                   if "/deploy-your-startup/" in job.get("uses", "")]
+                   if job.get("uses", "").startswith("Deploy-your-Startup/deploy/")]
     assert len(shared_jobs) == 3
     assert all(job["uses"].endswith("@codex/shared-cluster") for job in shared_jobs)
     assert not any("§§deploy_your_startup.deploy_ref§§" in path.read_text() for path in workflows)
@@ -65,7 +65,7 @@ with tempfile.TemporaryDirectory() as temporary:
     variables = yaml.load((generated / "deployment/group_vars/production.yml").read_text(), Loader=yaml.BaseLoader)
     assert variables["postgres_version"] == "18.6"
     dependency = (generated / "deployment/pyproject.toml").read_text()
-    assert 'rev = "b7b467d2613d0c1113519442bcae82f542a8c6d3"' in dependency
+    assert 'rev = "7f8a113212aa27003713de3222966418bf848c9b"' in dependency
     # GIVEN the rendered deployment, WHEN its real locked CLI is run,
     # THEN SSH access and the cluster ownership guard work.
     subprocess.run(["bash", str(generated / "deployment/tests/ssh-access-integration_test.sh")], check=True)
@@ -75,7 +75,7 @@ with tempfile.TemporaryDirectory() as temporary:
     # THEN OAuth and KPI deployment consume shared roles without local copies.
     revision = (root / "tests/shared-roles.ref").read_text().strip()
     roles = Path(temporary) / "shared"
-    subprocess.run(["git", "clone", "--quiet", "https://github.com/Deploy-your-Startup/deploy-template.git", str(roles)], check=True)
+    subprocess.run(["git", "clone", "--quiet", "https://github.com/Deploy-your-Startup/deploy.git", str(roles)], check=True)
     subprocess.run(["git", "-C", str(roles), "checkout", "--quiet", revision], check=True)
     for role, toggle in (("oauth2-proxy", "oauth2_proxy_enabled"), ("kpis", "kpis_enabled")):
         imports = [task for task in tasks if task.get("include_role", {}).get("name") == role]
