@@ -36,7 +36,7 @@ with `--cluster <descriptor>`. Each application keeps its own namespace, Vault,
 database and media volumes. The owner manages cluster-wide operations, including
 Ubuntu release upgrades. Review policies and per-startup backups before
 maintenance; local volumes do not provide storage failover. `deploy_ref` selects
-the shared deployment release commit for generated workflows (default: `v1.0.0`);
+the shared deployment release commit for generated workflows (default: `v2.1.0`);
 `deploy_repository` names the repository, `Deploy-your-Startup/deploy` or a fork.
 
 ## Shared authentication and KPI tracking
