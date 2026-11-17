@@ -31,12 +31,13 @@ with tempfile.TemporaryDirectory() as temporary:
     callers = [yaml.safe_load(path.read_text()) for path in workflows]
     shared_jobs = [job for workflow in callers for job in workflow.get("jobs", {}).values()
                    if job.get("uses", "").startswith("Deploy-your-Startup/deploy/")]
-    assert len(shared_jobs) == 3
+    assert len(shared_jobs) == 1
+    subprocess.run([sys.executable, str(root / "tests/deployment_version_check.py"), str(generated)], check=True)
     assert all(job["uses"].endswith("@codex/shared-cluster") for job in shared_jobs)
     assert not any("§§deploy_your_startup.deploy_ref§§" in path.read_text() for path in workflows)
     # GIVEN a real generated backend, WHEN CI calls the shared harness,
     # THEN coverage is required and the portable instructions define its contract.
-    backend_job = next(job for job in shared_jobs if job.get("with", {}).get("service") == "application")
+    backend_job = next(job for workflow in callers for job in workflow.get("jobs", {}).values() if job.get("with", {}).get("service") == "application")
     assert backend_job["with"]["run_e2e"] is False
     # The shared build lives under another owner, so the caller grants what it nests.
     assert backend_job["permissions"] == {"contents": "read", "actions": "read", "pull-requests": "write", "packages": "write", "id-token": "write"}
@@ -82,7 +83,7 @@ with tempfile.TemporaryDirectory() as temporary:
 
     # GIVEN the exact reviewed shared roles, WHEN loading the generated play,
     # THEN OAuth and KPI deployment consume shared roles without local copies.
-    revision = (root / "tests/shared-roles.ref").read_text().strip()
+    revision = yaml.safe_load((root / "copier.yml").read_text())["deploy_ref"]["default"]
     roles = Path(temporary) / "shared"
     subprocess.run(["git", "clone", "--quiet", "https://github.com/Deploy-your-Startup/deploy.git", str(roles)], check=True)
     subprocess.run(["git", "-C", str(roles), "checkout", "--quiet", revision], check=True)

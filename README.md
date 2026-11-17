@@ -80,3 +80,8 @@ See the [shared KPI configuration](https://github.com/Deploy-your-Startup/deploy
 
 See [legal information and local consent](template/docs/privacy.md) for operator configuration,
 analytics opt-in and browser verification. No consent-service account is required.
+
+The generated project's deployment version is configured once in
+`.github/workflows/startup.yml`. Other workflows and local CLI operations use
+that reference. `startup update` changes it; no separate role pin or checksum
+files are required. A successful Actions deployment run records execution.
