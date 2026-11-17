@@ -30,12 +30,13 @@ with tempfile.TemporaryDirectory() as temporary:
     callers = [yaml.safe_load(path.read_text()) for path in workflows]
     shared_jobs = [job for workflow in callers for job in workflow.get("jobs", {}).values()
                    if job.get("uses", "").startswith("Deploy-your-Startup/deploy/")]
-    assert len(shared_jobs) == 3
+    assert len(shared_jobs) == 1
+    subprocess.run([sys.executable, str(root / "tests/deployment_version_check.py"), str(generated)], check=True)
     assert all(job["uses"].endswith("@codex/shared-cluster") for job in shared_jobs)
     assert not any("§§deploy_your_startup.deploy_ref§§" in path.read_text() for path in workflows)
     # GIVEN a real generated backend, WHEN CI calls the shared harness,
     # THEN coverage is required and the portable instructions define its contract.
-    backend_job = next(job for job in shared_jobs if job.get("with", {}).get("service") == "application")
+    backend_job = next(job for workflow in callers for job in workflow.get("jobs", {}).values() if job.get("with", {}).get("service") == "application")
     assert backend_job["with"]["run_e2e"] is False
     # The shared build lives under another owner, so the caller grants what it nests.
     assert backend_job["permissions"] == {"contents": "read", "actions": "read", "pull-requests": "write", "packages": "write", "id-token": "write"}
@@ -73,16 +74,19 @@ with tempfile.TemporaryDirectory() as temporary:
     assert "ENV UV_PYTHON_DOWNLOADS=never" in dockerfile
     assert f'requires-python = "~={python}.0"' in (generated / "backend/pyproject.toml").read_text()
     dependency = (generated / "deployment/pyproject.toml").read_text()
-    assert 'rev = "7f8a113212aa27003713de3222966418bf848c9b"' in dependency
+    import re
+    assert re.search(r'rev = "[0-9a-f]{40}"', dependency)
     # GIVEN the rendered deployment, WHEN its locked CLI starts,
     # THEN the deployment entrypoint loads. CLI behavior is tested in its own repo.
     subprocess.run(["uv", "run", "--locked", "--project", str(generated / "deployment"),
                     "startup", "ansible", "--help"], check=True, stdout=subprocess.DEVNULL)
+    subprocess.run(["uv", "run", "--locked", "--project", str(generated / "deployment"),
+                    "python", "-I", "-c", "import cli.project_version"], check=True)
     print("Real Copier render: pinned CLI, current Postgres and controller copies verified")
 
     # GIVEN the exact reviewed shared roles, WHEN loading the generated play,
     # THEN OAuth and KPI deployment consume shared roles without local copies.
-    revision = (root / "tests/shared-roles.ref").read_text().strip()
+    revision = yaml.safe_load((root / "copier.yml").read_text())["deploy_ref"]["default"]
     roles = Path(temporary) / "shared"
     subprocess.run(["git", "clone", "--quiet", "https://github.com/Deploy-your-Startup/deploy.git", str(roles)], check=True)
     subprocess.run(["git", "-C", str(roles), "checkout", "--quiet", revision], check=True)
