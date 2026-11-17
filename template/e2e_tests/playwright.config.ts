@@ -28,7 +28,7 @@ export default defineConfig({
     baseURL: process.env.E2E_BASE_URL || `http://localhost:${frontendPort}`,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: "on-first-retry",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: process.env.E2E_BASE_URL
