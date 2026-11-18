@@ -1,9 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: frontend-security-headers
+  namespace: "{{ k8s_namespace | default('default') }}"
+spec:
+  headers:
+    stsSeconds: 86400
+    contentSecurityPolicy: "base-uri 'self'; frame-ancestors 'none'"
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: frontend
   namespace: "{{ k8s_namespace | default('default') }}"
   annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: {{ k8s_namespace | default('default') }}-frontend-security-headers@kubernetescrd
     cert-manager.io/issuer: letsencrypt-prod
 spec:
   tls:
