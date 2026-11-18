@@ -41,7 +41,13 @@ test("browser login keeps tokens in an HttpOnly cookie", async ({ page }) => {
   );
   expect(cookie?.httpOnly).toBe(true);
   expect((await page.request.get("/private_api/session")).status()).toBe(200);
+  // vue-router keeps scroll positions in sessionStorage; nothing else may be
+  // stored client-side, so tokens never reach web storage.
   expect(
-    await page.evaluate(() => localStorage.length + sessionStorage.length),
-  ).toBe(0);
+    await page.evaluate(() =>
+      [...Object.keys(localStorage), ...Object.keys(sessionStorage)].filter(
+        (key) => key !== "vue-router:scroll",
+      ),
+    ),
+  ).toEqual([]);
 });
