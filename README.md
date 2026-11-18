@@ -17,7 +17,7 @@ startup doctor
 startup bootstrap --kind fullstack --provider hetzner --domain-owned \
   --project-name my-startup --base-domain example.com \
   --template https://github.com/Deploy-your-Startup/vue-django-template.git \
-  --template-version v0.1.9 --without-auth
+  --without-auth
 ```
 
 Use your own project name and domain. Verify GitHub Actions, DNS, HTTPS and the
@@ -36,7 +36,7 @@ with `--cluster <descriptor>`. Each application keeps its own namespace, Vault,
 database and media volumes. The owner manages cluster-wide operations, including
 Ubuntu release upgrades. Review policies and per-startup backups before
 maintenance; local volumes do not provide storage failover. `deploy_ref` selects
-the shared deployment release commit for generated workflows (default: `v1.0.0`);
+the shared deployment release commit for generated workflows (default: `v2.1.0`);
 `deploy_repository` names the repository, `Deploy-your-Startup/deploy` or a fork.
 
 ## Shared authentication and KPI tracking
@@ -80,3 +80,12 @@ See the [shared KPI configuration](https://github.com/Deploy-your-Startup/deploy
 
 See [legal information and local consent](template/docs/privacy.md) for operator configuration,
 analytics opt-in and browser verification. No consent-service account is required.
+
+The generated project's deployment version is configured once in
+`.github/workflows/startup.yml`. Other workflows and local CLI operations use
+that reference. `startup update` changes it; no separate role pin or checksum
+files are required. A successful Actions deployment run records execution.
+
+The CLI selects its tested template release by default; use `--template-version`
+to select another published release deliberately. Single-version deployment
+requires CLI v0.1.52 or newer.
