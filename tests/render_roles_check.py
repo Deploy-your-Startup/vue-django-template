@@ -26,6 +26,21 @@ with tempfile.TemporaryDirectory() as temporary:
                     data={"project_name": "role-check", "base_domain": "example.com",
                           "github_username": "example", "deploy_ref": "codex/shared-cluster",
                           "kpis_website_id": "8d92b4ec-9a6a-4c50-85e4-b6ea4048f3f8"})
+    # GIVEN the generated application ingress, WHEN Ansible renders its manifests,
+    # THEN its router uses the middleware that sets HTTPS and framing policy.
+    from jinja2 import Environment, StrictUndefined
+    environment = Environment(undefined=StrictUndefined)
+    environment.filters["bool"] = bool
+    ingress = generated / "frontend/deployment/templates/ingress.yml"
+    rendered = environment.from_string(ingress.read_text()).render(
+        base_domain="example.com", additional_domains=[], k8s_namespace="sample")
+    resources = [doc for doc in yaml.safe_load_all(rendered) if doc]
+    middleware = next(doc for doc in resources if "headers" in doc["spec"])
+    headers = middleware["spec"]["headers"]
+    assert headers["stsSeconds"] > 0 and "frame-ancestors" in headers["contentSecurityPolicy"]
+    reference = f"sample-{middleware['metadata']['name']}@kubernetescrd"
+    for router in (doc for doc in resources if doc["kind"] == "Ingress"):
+        assert reference in router["metadata"]["annotations"]["traefik.ingress.kubernetes.io/router.middlewares"].split(",")
     workflows = list((generated / ".github/workflows").glob("*.yml"))
     callers = [yaml.safe_load(path.read_text()) for path in workflows]
     shared_jobs = [job for workflow in callers for job in workflow.get("jobs", {}).values()
