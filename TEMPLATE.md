@@ -41,7 +41,7 @@ freeze old harness implementations under the guise of customization.
 ## Shared authentication and KPI tracking
 
 Production uses the synced `oauth2-proxy` and `kpis` roles, without project-owned
-copies. Keep `oauth2_proxy_enabled: false` until Auth0 setup has saved the proxy
+copies. Keep `oauth2_proxy_enabled: false` until application login setup has saved the proxy
 credentials. Existing projects using `oauth_enabled` must rename that setting
 when migrating to this template; their group_vars are preserved by Copier.
 

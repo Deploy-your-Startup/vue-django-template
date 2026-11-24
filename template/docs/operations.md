@@ -3,9 +3,12 @@
 ## Authentication
 
 `mise run dev` starts a mock OIDC provider and the real OAuth2 Proxy. Production
-login is configured with `startup bootstrap --auth0-tenant <tenant>` or
-`startup auth0 setup`; credentials stay in Vault. `/private_api` must only be
-exposed through the proxy, which validates tokens.
+login is configured during `startup bootstrap`: choose Auth0, an existing
+Keycloak realm or another OIDC provider. Register
+`https://<base-domain>/oauth2/callback` with the provider and keep client
+credentials in Vault. Expose `/private_api` through the proxy, which validates
+tokens. To exercise Discovery and browser login with a local Keycloak realm,
+run `E2E_KEYCLOAK=true npm test -- tests/auth.spec.ts` from `e2e_tests`.
 
 - Before bootstrap: `startup auth0 check --tenant <tenant>`.
 - After deploy: `startup auth0 validate --tenant <tenant> --base-domain <domain>`.
@@ -15,7 +18,7 @@ secure HttpOnly session without saving auth state. Never use agent-supplied
 passwords.
 
 Production uses the synced `oauth2-proxy` and `kpis` roles, without project-owned
-copies. Keep `oauth2_proxy_enabled: false` until Auth0 setup has saved the proxy
+copies. Keep `oauth2_proxy_enabled: false` until login setup has saved the proxy
 credentials. Existing projects using `oauth_enabled` must rename that setting
 when migrating to this template; their group_vars are preserved by Copier.
 

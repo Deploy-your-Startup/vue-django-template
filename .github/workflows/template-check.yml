@@ -89,6 +89,9 @@ jobs:
       - name: Test the generated application in a browser
         working-directory: ../generated/e2e_tests
         run: ./make.sh lint && STARTUP_COVERAGE=true ./make.sh test_e2e
+      - name: Test real Keycloak login with OIDC discovery
+        working-directory: ../generated/e2e_tests
+        run: E2E_KEYCLOAK=true npm test -- tests/auth.spec.ts
       - name: Check the coverage harness contract
         working-directory: ../generated
         run: |

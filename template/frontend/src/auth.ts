@@ -1,8 +1,7 @@
 /**
  * Authentication against oauth2-proxy.
  *
- * There is no Auth0 SDK here any more, and no token in this file or anywhere
- * else the page can reach. oauth2-proxy sits in front of the backend, performs
+ * oauth2-proxy sits in front of the backend, performs
  * the OIDC flow itself, and hands the browser an httpOnly session cookie scoped
  * to the parent domain. Logging in is a navigation, not an API call, and the
  * session is something only the server can read - an XSS cannot steal it the
@@ -16,7 +15,7 @@
  * The endpoints are same-origin on purpose. oauth2-proxy adds no CORS headers
  * to its own /oauth2/... routes (unlike /api/..., where Django's middleware
  * does), so a cross-origin fetch would be blocked by the browser. The frontend
- * ingress therefore routes /oauth2 to the same service the backend host uses.
+ * ingress therefore routes /oauth2 directly to the proxy.
  */
 
 export interface Identity {
@@ -55,12 +54,10 @@ export async function whoAmI(): Promise<Identity | null> {
 
 /**
  * Starts the login. This deliberately leaves the SPA: the OIDC flow is a series
- * of full-page redirects through Auth0 and back, which is what removes the need
- * for the SDK, the silent-renew iframe and the token handling that came with it.
+ * of full-page redirects through the configured identity provider and back.
  *
- * `rd` is where oauth2-proxy sends the browser afterwards. It is absolute
- * because the callback is served by the backend host, and it has to be inside
- * the whitelisted domain or oauth2-proxy will refuse it and fall back to `/`.
+ * `rd` is where oauth2-proxy sends the browser afterwards. It has to be inside
+ * the allowed domain or oauth2-proxy will fall back to `/`.
  */
 export function login(returnTo: string = window.location.href): void {
   window.location.assign(

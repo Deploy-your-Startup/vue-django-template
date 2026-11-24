@@ -1,0 +1,32 @@
+{
+  "realm": "startup-test",
+  "enabled": true,
+  "sslRequired": "none",
+  "clients": [
+    {
+      "clientId": "startup-web",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "local-development-only",
+      "standardFlowEnabled": true,
+      "attributes": { "pkce.code.challenge.method": "S256" }
+    }
+  ],
+  "users": [
+    {
+      "username": "keycloak-user",
+      "email": "user@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "local-e2e-user",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

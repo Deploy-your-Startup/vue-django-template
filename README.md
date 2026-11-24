@@ -42,7 +42,7 @@ the shared deployment release commit for generated workflows (default: `v2.1.0`)
 ## Shared authentication and KPI tracking
 
 Production uses the synced `oauth2-proxy` and `kpis` roles, without project-owned
-copies. Keep `oauth2_proxy_enabled: false` until Auth0 setup has saved the proxy
+copies. Keep `oauth2_proxy_enabled: false` until application login setup has saved the proxy
 credentials. Existing projects using `oauth_enabled` must rename that setting
 when migrating to this template; their group_vars are preserved by Copier.
 

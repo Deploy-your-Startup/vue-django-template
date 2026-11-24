@@ -15,7 +15,7 @@ import yaml
 root = Path(sys.argv[1])
 manifest = yaml.safe_load((root / "startup-template.yml").read_text())
 assert manifest["schema"] == 1 and manifest["shared_cluster"] is True
-assert manifest["authentication"] == "auth0"
+assert manifest["authentication"] == "oidc"
 
 with tempfile.TemporaryDirectory() as temporary:
     source = Path(temporary) / "source"
@@ -66,6 +66,16 @@ with tempfile.TemporaryDirectory() as temporary:
         assert "backend" in tasks[index]["tags"].split(",")
     variables = yaml.load((generated / "deployment/group_vars/production.yml").read_text(), Loader=yaml.BaseLoader)
     assert variables["postgres_version"] == "18.6"
+    ingress_paths = generated / "backend/deployment/templates/ingress.yml"
+    ingress_data = Templar(loader=DataLoader(), variables={
+        "base_domain": "example.com", "additional_domains": ["alias.example.com"],
+    }).template(trust_as_template(ingress_paths.read_text()))
+    rules = yaml.safe_load(ingress_data)["spec"]["rules"]
+    assert {rule["host"] for rule in rules} == {"backend.example.com", "alias.example.com"}
+    for rule in rules:
+        paths = {route["path"] for route in rule["http"]["paths"]}
+        assert "/api" in paths and "/admin" in paths
+        assert not paths.intersection({"/", "/private_api", "/oauth2"})
     # GIVEN the rendered backend, WHEN its image is built, THEN it runs the
     # project's Python and uv cannot quietly download a different one.
     python = (generated / "backend/.python-version").read_text().strip()

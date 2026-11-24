@@ -1,0 +1,50 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    command:
+      - start-dev
+      - --import-realm
+      - --hostname=http://localhost:${OIDC_PORT}
+      - --http-port=${OIDC_PORT}
+    ports:
+      - "127.0.0.1:${OIDC_PORT}:${OIDC_PORT}"
+      - "127.0.0.1:${MOCK_PROXY_PORT}:4180"
+    volumes:
+      - "${KEYCLOAK_REALM_FILE}:/opt/keycloak/data/import/realm.json:ro"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -ec 'exec 3<>/dev/tcp/127.0.0.1/${OIDC_PORT};
+          printf "GET /realms/startup-test/.well-known/openid-configuration HTTP/1.0\r\n\r\n" >&3;
+          read -r status <&3; [[ "$$status" == *" 200 "* ]]'
+      interval: 2s
+      timeout: 3s
+      retries: 40
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.13.0
+    # Shared network namespace gives the browser and the proxy the same issuer URL.
+    network_mode: service:keycloak
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      OAUTH2_PROXY_CLIENT_ID: startup-web
+      OAUTH2_PROXY_CLIENT_SECRET: local-development-only
+      OAUTH2_PROXY_COOKIE_SECRET: YWJvdXQtcGhpbC1sb2NhbC1kZXYtY29va2llLWtleSE=
+    command:
+      - --provider=oidc
+      - --oidc-issuer-url=http://localhost:${OIDC_PORT}/realms/startup-test
+      - --code-challenge-method=S256
+      - --http-address=0.0.0.0:4180
+      - --redirect-url=${PROXY_PUBLIC_ORIGIN}/oauth2/callback
+      - --whitelist-domain=${PROXY_WHITELIST_DOMAIN}
+      - --upstream=http://host.docker.internal:${BACKEND_PORT}
+      - --email-domain=*
+      - --cookie-secure=false
+      - --reverse-proxy=true
+      - --pass-authorization-header=true
+      - "--skip-auth-route=!=^/private_api"
+      - "--skip-auth-route=OPTIONS=^/private_api"
