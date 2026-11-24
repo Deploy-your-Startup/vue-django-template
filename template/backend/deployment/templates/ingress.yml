@@ -14,25 +14,17 @@ spec:
 {% endfor %}
       secretName: backend-tls
   rules:
-    - host: "backend.{{ base_domain }}"
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: backend
-                port:
-                  number: 8000
-{% for domain in additional_domains %}
+{% for domain in ['backend.' ~ base_domain] + additional_domains %}
     - host: "{{ domain }}"
       http:
         paths:
-          - path: /
+{% for path in ['/api', '/admin', '/static', '/media', '/docs', '/redoc', '/openapi.json'] %}
+          - path: {{ path }}
             pathType: Prefix
             backend:
               service:
                 name: backend
                 port:
                   number: 8000
+{% endfor %}
 {% endfor %}

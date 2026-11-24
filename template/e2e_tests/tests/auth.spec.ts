@@ -1,4 +1,5 @@
 import { expect, test } from "../support/fixtures";
+import { OIDC_URL } from "../support/config";
 
 test("protected routes reject anonymous and forged credentials", async ({
   request,
@@ -27,11 +28,32 @@ test("browser login keeps tokens in an HttpOnly cookie", async ({ page }) => {
   await page.goto("/");
   // WHEN
   await page.getByRole("button", { name: "Log in", exact: true }).click();
-  await page.locator('input[name="username"]').fill("user@example.com");
-  await page
-    .locator('textarea[name="claims"]')
-    .fill(JSON.stringify({ email: "user@example.com" }));
-  await page.getByRole("button", { name: "Sign-in" }).click();
+  if (process.env.E2E_KEYCLOAK === "true") {
+    const issuer = `${OIDC_URL}/realms/startup-test`;
+    const discovery = await page.request.get(
+      `${issuer}/.well-known/openid-configuration`,
+    );
+    expect(discovery.ok()).toBe(true);
+    const metadata = await discovery.json();
+    expect(metadata.issuer).toBe(issuer);
+    const redirect = new URL(page.url());
+    expect(redirect.origin + redirect.pathname).toBe(
+      metadata.authorization_endpoint,
+    );
+    expect(redirect.searchParams.get("redirect_uri")).toBe(
+      new URL("/oauth2/callback", String(test.info().project.use.baseURL)).href,
+    );
+    expect(redirect.searchParams.get("code_challenge_method")).toBe("S256");
+    await page.locator("#username").fill("keycloak-user");
+    await page.locator("#password").fill("local-e2e-user");
+    await page.getByRole("button", { name: "Sign In", exact: true }).click();
+  } else {
+    await page.locator('input[name="username"]').fill("user@example.com");
+    await page
+      .locator('textarea[name="claims"]')
+      .fill(JSON.stringify({ email: "user@example.com" }));
+    await page.getByRole("button", { name: "Sign-in" }).click();
+  }
   // THEN
   await expect(
     page.getByRole("button", { name: "Log out", exact: true }),

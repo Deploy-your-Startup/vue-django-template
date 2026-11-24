@@ -1,5 +1,5 @@
 schema: 1
-authentication: auth0
+authentication: oidc
 shared_cluster: true
 kpis: true
 site_policy: 1
